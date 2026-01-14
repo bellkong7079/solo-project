@@ -1,0 +1,144 @@
+.auth-page {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background-color: #fafafa;
+}
+
+.auth-container {
+  max-width: 450px;
+  width: 100%;
+  background-color: #ffffff;
+  padding: 50px 40px;
+  border: 1px solid #f0f0f0;
+}
+
+.auth-title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-align: center;
+  margin-bottom: 8px;
+  color: #1a1a1a;
+}
+
+.auth-subtitle {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+  letter-spacing: 0.5px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #e0e0e0;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: #fafafa;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #1a1a1a;
+  background-color: #ffffff;
+}
+
+.btn-full {
+  width: 100%;
+  margin-top: 10px;
+  padding: 16px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.error-message {
+  background-color: #fff5f5;
+  border: 1px solid #ffebee;
+  color: #c62828;
+  padding: 12px 16px;
+  font-size: 14px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.auth-links {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.auth-links p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.auth-links a {
+  color: #1a1a1a;
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.3s ease;
+}
+
+.auth-links a:hover {
+  opacity: 0.6;
+}
+
+/* 관리자 페이지 전용 스타일 */
+.admin-page .auth-container {
+  border: 2px solid #1a1a1a;
+}
+
+.admin-badge {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 20px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 40px 30px;
+  }
+
+  .auth-title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-page {
+    padding: 40px 15px;
+  }
+
+  .auth-container {
+    padding: 30px 20px;
+  }
+}
