@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from '../api/axios';
+import axios from '../utils/axios';
 import './CartPage.css';
 
 function CartPage() {
@@ -94,7 +94,13 @@ function CartPage() {
             {cartItems.map((item) => (
               <div key={item.cart_id} className="cart-item">
                 <Link to={`/products/${item.product_id}`} className="item-image">
-                  <img src={item.thumbnail} alt={item.name} />
+                  <img 
+                    src={item.thumbnail 
+                      ? `http://localhost:5000${item.thumbnail}` 
+                      : 'https://via.placeholder.com/120'
+                    } 
+                    alt={item.name} 
+                  />
                 </Link>
 
                 <div className="item-info">
@@ -107,7 +113,7 @@ function CartPage() {
                     </p>
                   )}
                   <p className="item-price">
-                    {item.itemPrice.toLocaleString()}원
+                    {(item.itemPrice || 0).toLocaleString()}원
                   </p>
                 </div>
 
@@ -128,7 +134,7 @@ function CartPage() {
                 </div>
 
                 <div className="item-total">
-                  {item.itemTotal.toLocaleString()}원
+                  {(item.itemTotal || 0).toLocaleString()}원
                 </div>
 
                 <button
@@ -149,7 +155,7 @@ function CartPage() {
             <h3>주문 요약</h3>
             <div className="summary-row">
               <span>상품 금액</span>
-              <span>{totalPrice.toLocaleString()}원</span>
+              <span>{(totalPrice || 0).toLocaleString()}원</span>
             </div>
             <div className="summary-row">
               <span>배송비</span>
@@ -159,7 +165,7 @@ function CartPage() {
             <div className="summary-row total">
               <span>총 결제금액</span>
               <span className="total-price">
-                {(totalPrice + (totalPrice >= 50000 ? 0 : 3000)).toLocaleString()}원
+                {((totalPrice || 0) + (totalPrice >= 50000 ? 0 : 3000)).toLocaleString()}원
               </span>
             </div>
 

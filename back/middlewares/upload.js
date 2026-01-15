@@ -1,41 +1,43 @@
+// back/middlewares/upload.js
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 
-// uploads 폴더 생성
-const uploadDir = 'uploads/products';
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// 파일 저장 설정
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/products/');
   },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'product-' + uniqueSuffix + path.extname(file.originalname));
+  filename: (req, file, cb) => {
+    // 원본 확장자 추출
+    const ext = path.extname(file.originalname).toLowerCase();
+    // jfif를 jpg로 변환
+    const finalExt = ext === '.jfif' ? '.jpg' : ext;
+    cb(null, `product-${Date.now()}-${Math.random().toString(36).substr(2, 9)}${finalExt}`);
   }
 });
 
-// 파일 필터 (이미지만 허용)
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|gif|webp/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
-
-  if (mimetype && extname) {
-    return cb(null, true);
+  console.log('업로드 파일:', file.originalname, 'MIME:', file.mimetype);
+  
+  // MIME 타입 체크
+  const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+  
+  // 확장자 체크 (.jfif도 허용)
+  const ext = path.extname(file.originalname).toLowerCase();
+  const allowedExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.jfif'];
+  
+  if (allowedMimes.includes(file.mimetype) || allowedExts.includes(ext)) {
+    cb(null, true);
   } else {
-    cb(new Error('이미지 파일만 업로드 가능합니다.'));
+    cb(new Error('이미지 파일만 업로드 가능합니다. (jpg, jpeg, png, gif, webp, jfif)'), false);
   }
 };
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: fileFilter
+  fileFilter: fileFilter,
+  limits: { 
+    fileSize: 5 * 1024 * 1024  // 5MB
+  }
 });
 
 module.exports = upload;

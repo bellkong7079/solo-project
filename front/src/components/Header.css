@@ -126,6 +126,25 @@
   color: #1a1a1a;
 }
 
+.admin-link-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  border: none;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.admin-link-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
 .header-logout-btn {
   background: none;
   border: 1px solid #e0e0e0;
@@ -168,6 +187,11 @@
 
   .user-name {
     display: none;
+  }
+
+  .admin-link-btn {
+    padding: 6px 12px;
+    font-size: 12px;
   }
   
   .header-logout-btn {

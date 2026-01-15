@@ -1,0 +1,237 @@
+.admin-order-list {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px;
+  margin-left: 260px;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.list-header h1 {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-back {
+  padding: 10px 20px;
+  background-color: #f5f5f5;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-back:hover {
+  background-color: #e0e0e0;
+}
+
+/* 필터 탭 */
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  background-color: #f5f5f5;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.filter-tab {
+  padding: 12px 20px;
+  background-color: transparent;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  color: #666;
+}
+
+.filter-tab:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.filter-tab.active {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+/* 테이블 */
+.orders-table-container {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1000px;
+}
+
+.orders-table thead {
+  background-color: #f5f5f5;
+}
+
+.orders-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+  border-bottom: 2px solid #e0e0e0;
+  white-space: nowrap;
+}
+
+.orders-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+.orders-table tbody tr:hover {
+  background-color: #fafafa;
+}
+
+/* 상태 뱃지 */
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.paid {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-badge.shipping {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.status-badge.delivered {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.cancelled {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* 액션 버튼 */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-status,
+.btn-detail {
+  padding: 6px 12px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-status {
+  background-color: #007bff;
+  color: #ffffff;
+}
+
+.btn-status:hover {
+  background-color: #0056b3;
+}
+
+.btn-detail {
+  background-color: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.btn-detail:hover {
+  background-color: #e0e0e0;
+}
+
+/* 빈 상태 */
+.empty-state {
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 60px;
+}
+
+.empty-state p {
+  font-size: 16px;
+  color: #999;
+}
+
+.loading {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #666;
+}
+
+/* 반응형 */
+@media (max-width: 1400px) {
+  .admin-order-list {
+    margin-left: 260px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .orders-table {
+    font-size: 13px;
+  }
+
+  .orders-table th,
+  .orders-table td {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-order-list {
+    margin-left: 0;
+    padding: 24px;
+  }
+
+  .filter-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .orders-table-container {
+    overflow-x: auto;
+  }
+}

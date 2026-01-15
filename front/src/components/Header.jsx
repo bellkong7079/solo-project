@@ -13,8 +13,10 @@ function Header() {
 
   const checkLoginStatus = () => {
     const token = localStorage.getItem('token');
+    const adminToken = localStorage.getItem('adminToken');
     const userData = localStorage.getItem('user');
     
+    // 일반 사용자 토큰이 있으면
     if (token && userData) {
       try {
         setUser(JSON.parse(userData));
@@ -24,12 +26,29 @@ function Header() {
         localStorage.removeItem('user');
       }
     }
+    // 관리자 토큰만 있으면
+    else if (adminToken) {
+      try {
+        const payload = JSON.parse(atob(adminToken.split('.')[1]));
+        setUser({ 
+          name: payload.name || 'Admin',
+          email: payload.email,
+          isAdmin: true
+        });
+      } catch (error) {
+        console.error('관리자 토큰 파싱 실패:', error);
+      }
+    }
   };
 
   const handleLogout = () => {
     if (window.confirm('로그아웃 하시겠습니까?')) {
+      // 일반 사용자 토큰 삭제
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      // 관리자 토큰도 삭제
+      localStorage.removeItem('adminToken');
+      
       setUser(null);
       alert('로그아웃 되었습니다.');
       navigate('/');
@@ -62,7 +81,14 @@ function Header() {
 
           {user ? (
             <div className="user-menu">
-              <span className="user-name">{user.name}님</span>
+              <span className="user-name">
+                {user.isAdmin ? '👑 ' : ''}{user.name}님
+              </span>
+              {user.isAdmin && (
+                <Link to="/admin/dashboard" className="admin-link-btn">
+                  관리자
+                </Link>
+              )}
               <button onClick={handleLogout} className="header-logout-btn">
                 로그아웃
               </button>

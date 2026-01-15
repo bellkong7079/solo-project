@@ -10,10 +10,11 @@ function ProductListPage() {
   const [sortBy, setSortBy] = useState('latest');
 
   const category = searchParams.get('category');
+  const gender = searchParams.get('gender');  // ⭐ 추가
 
   useEffect(() => {
     fetchProducts();
-  }, [category, sortBy]);
+  }, [category, gender, sortBy]);  // ⭐ gender 추가
 
   const fetchProducts = async () => {
     try {
@@ -21,6 +22,7 @@ function ProductListPage() {
       const params = [];
       
       if (category) params.push(`category=${category}`);
+      if (gender) params.push(`gender=${gender}`);  // ⭐ 추가
       if (sortBy) params.push(`sort=${sortBy}`);
       
       if (params.length > 0) {
@@ -37,6 +39,11 @@ function ProductListPage() {
   };
 
   const getCategoryTitle = () => {
+    // ⭐ 성별에 따른 타이틀
+    if (gender === 'male') return "남성 상품";
+    if (gender === 'female') return "여성 상품";
+    if (gender === 'unisex') return "유니섹스 상품";
+    
     if (category === 'men') return "Men's Collection";
     if (category === 'women') return "Women's Collection";
     if (category === 'new') return "New Arrivals";
@@ -90,9 +97,12 @@ function ProductListPage() {
               >
                 <div className="product-image">
                   <img 
-                    src={product.thumbnail || 'https://via.placeholder.com/400'} 
+                    src={product.thumbnail 
+                    ? `http://localhost:5000${product.thumbnail}` 
+                    : 'https://via.placeholder.com/400'
+                  } 
                     alt={product.name} 
-                  />
+                    />
                   {product.discount_price && (
                     <div className="discount-badge">
                       {Math.round((1 - product.discount_price / product.price) * 100)}%

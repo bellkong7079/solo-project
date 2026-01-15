@@ -95,9 +95,9 @@ function ProductDetailPage() {
   };
 
   const getTotalPrice = () => {
-    const basePrice = product.discount_price || product.price;
+    const basePrice = Number(product.discount_price) || Number(product.price) || 0;
     const optionInfo = getSelectedOptionInfo();
-    const additionalPrice = optionInfo?.additional_price || 0;
+    const additionalPrice = Number(optionInfo?.additional_price) || 0;
     return (basePrice + additionalPrice) * quantity;
   };
 
@@ -110,8 +110,17 @@ function ProductDetailPage() {
   }
 
   const images = product.images?.length > 0 
-    ? product.images 
-    : [{ image_url: product.thumbnail || 'https://via.placeholder.com/600' }];
+    ? product.images.map(img => ({
+        ...img,
+        image_url: img.image_url.startsWith('http') 
+          ? img.image_url 
+          : `http://localhost:5000${img.image_url}`
+      }))
+    : [{ 
+        image_url: product.thumbnail 
+          ? `http://localhost:5000${product.thumbnail}`
+          : 'https://via.placeholder.com/600' 
+      }];
 
   return (
     <div className="product-detail-page">

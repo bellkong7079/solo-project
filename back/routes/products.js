@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
+const upload = require('../middlewares/upload');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 // 상품 목록 조회 (사용자용)
 router.get('/', async (req, res) => {
   try {
-    const { category_id, search, sort } = req.query;
+    const { category_id, gender, search, sort } = req.query;  // ⭐ gender 추가
     
     let query = `
       SELECT 
@@ -18,6 +20,12 @@ router.get('/', async (req, res) => {
     `;
     
     const params = [];
+
+    // ⭐ 성별 필터 추가
+    if (gender && ['male', 'female', 'unisex'].includes(gender)) {
+      query += ' AND p.gender = ?';
+      params.push(gender);
+    }
 
     if (category_id) {
       query += ' AND p.category_id = ?';
@@ -46,6 +54,71 @@ router.get('/', async (req, res) => {
   }
 });
 
+// 상품 등록 (관리자용)
+router.post('/', authMiddleware, upload.array('images', 5), async (req, res) => {
+  const connection = await db.getConnection();
+  
+  try {
+    await connection.beginTransaction();
+    
+    console.log('받은 데이터:', req.body);
+    console.log('파일 정보:', req.files);
+    
+    const { name, description, price, discount_price, category_id, gender, status } = req.body;  // ⭐ gender 추가
+    const options = JSON.parse(req.body.options || '[]');
+    
+    // ⭐ gender 추가
+    const [productResult] = await connection.query(
+      `INSERT INTO products (name, description, price, discount_price, category_id, gender, status, created_at) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [name, description, price, discount_price || null, category_id, gender || 'unisex', status]
+    );
+    
+    const productId = productResult.insertId;
+    
+    if (req.files && req.files.length > 0) {
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+        const imageUrl = `/uploads/products/${file.filename}`;
+        const isThumbnail = i === 0 ? 1 : 0;
+        
+        await connection.query(
+          `INSERT INTO product_images (product_id, image_url, is_thumbnail, display_order) 
+           VALUES (?, ?, ?, ?)`,
+          [productId, imageUrl, isThumbnail, i + 1]
+        );
+      }
+    }
+    
+    if (options && options.length > 0) {
+      for (const option of options) {
+        await connection.query(
+          `INSERT INTO product_options (product_id, option_name, option_value, stock, additional_price) 
+           VALUES (?, ?, ?, ?, ?)`,
+          [productId, option.option_name, option.option_value, option.stock, option.additional_price]
+        );
+      }
+    }
+    
+    await connection.commit();
+    
+    res.status(201).json({ 
+      message: '상품이 등록되었습니다.',
+      productId 
+    });
+    
+  } catch (error) {
+    await connection.rollback();
+    console.error('상품 등록 에러:', error);
+    res.status(500).json({ 
+      message: '상품 등록에 실패했습니다.',
+      error: error.message 
+    });
+  } finally {
+    connection.release();
+  }
+});
+
 // 상품 상세 조회
 router.get('/:id', async (req, res) => {
   try {
@@ -66,19 +139,16 @@ router.get('/:id', async (req, res) => {
 
     const product = products[0];
 
-    // 이미지 조회
     const [images] = await db.query(
       'SELECT * FROM product_images WHERE product_id = ? ORDER BY display_order',
       [productId]
     );
 
-    // 옵션 조회
     const [options] = await db.query(
       'SELECT * FROM product_options WHERE product_id = ?',
       [productId]
     );
 
-    // 조회수 증가
     await db.query(
       'UPDATE products SET view_count = view_count + 1 WHERE product_id = ?',
       [productId]

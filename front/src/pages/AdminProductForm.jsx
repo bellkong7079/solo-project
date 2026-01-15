@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import './AdminProductForm.css';
 
-function AdminProductCreate() {
+function AdminProductForm() {
   const navigate = useNavigate();
+  const { id } = useParams();  // URL에서 상품 ID 가져오기
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);  // 데이터 로딩 상태
   
   const [formData, setFormData] = useState({
     name: '',
@@ -14,17 +16,14 @@ function AdminProductCreate() {
     price: '',
     discount_price: '',
     category_id: '',
-    gender: 'unisex',  // ⭐ 추가
+    gender: 'unisex',
     status: 'active'
   });
 
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
-  const [options, setOptions] = useState([
-    { option_name: 'SIZE', option_value: 'S', stock: 0, additional_price: 0 },
-    { option_name: 'SIZE', option_value: 'M', stock: 0, additional_price: 0 },
-    { option_name: 'SIZE', option_value: 'L', stock: 0, additional_price: 0 }
-  ]);
+  const [existingImages, setExistingImages] = useState([]);  // 기존 이미지
+  const [options, setOptions] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -34,7 +33,8 @@ function AdminProductCreate() {
       return;
     }
     fetchCategories();
-  }, [navigate]);
+    fetchProductData();  // ⭐ 상품 데이터 불러오기
+  }, [id, navigate]);
 
   useEffect(() => {
     return () => {
@@ -49,11 +49,53 @@ function AdminProductCreate() {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCategories(response.data.categories);
-      if (response.data.categories.length > 0) {
-        setFormData(prev => ({ ...prev, category_id: response.data.categories[0].category_id }));
-      }
     } catch (error) {
       console.error('카테고리 조회 실패:', error);
+    }
+  };
+
+  // ⭐ 상품 데이터 불러오기
+  const fetchProductData = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await axios.get(`http://localhost:5000/api/products/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const product = response.data.product;
+      
+      // 기본 정보 설정
+      setFormData({
+        name: product.name || '',
+        description: product.description || '',
+        price: product.price || '',
+        discount_price: product.discount_price || '',
+        category_id: product.category_id || '',
+        gender: product.gender || 'unisex',
+        status: product.status || 'active'
+      });
+
+      // 기존 이미지 설정
+      if (product.images && product.images.length > 0) {
+        setExistingImages(product.images);
+      }
+
+      // 옵션 설정
+      if (product.options && product.options.length > 0) {
+        setOptions(product.options);
+      } else {
+        setOptions([
+          { option_name: 'SIZE', option_value: 'S', stock: 0, additional_price: 0 },
+          { option_name: 'SIZE', option_value: 'M', stock: 0, additional_price: 0 },
+          { option_name: 'SIZE', option_value: 'L', stock: 0, additional_price: 0 }
+        ]);
+      }
+
+      setDataLoading(false);
+    } catch (error) {
+      console.error('상품 데이터 조회 실패:', error);
+      alert('상품 정보를 불러오는데 실패했습니다.');
+      navigate('/admin/products');
     }
   };
 
@@ -82,7 +124,7 @@ function AdminProductCreate() {
       
       if (!isValidType) {
         hasInvalidFile = true;
-        alert(`${file.name}은(는) 지원하지 않는 파일 형식입니다.\n지원 형식: jpg, jpeg, png, gif, webp, jfif`);
+        alert(`${file.name}은(는) 지원하지 않는 파일 형식입니다.`);
         break;
       }
       
@@ -105,6 +147,11 @@ function AdminProductCreate() {
     setImages(imageFiles);
     const previews = imageFiles.map(file => URL.createObjectURL(file));
     setImagePreviews(previews);
+  };
+
+  // 기존 이미지 삭제
+  const removeExistingImage = (imageId) => {
+    setExistingImages(existingImages.filter(img => img.image_id !== imageId));
   };
 
   const handleOptionChange = (index, field, value) => {
@@ -140,37 +187,46 @@ function AdminProductCreate() {
       formDataToSend.append('price', formData.price);
       formDataToSend.append('discount_price', formData.discount_price || '');
       formDataToSend.append('category_id', formData.category_id);
-      formDataToSend.append('gender', formData.gender);  // ⭐ 추가
+      formDataToSend.append('gender', formData.gender);
       formDataToSend.append('status', formData.status);
 
+      // 새 이미지 추가
       images.forEach(image => {
         formDataToSend.append('images', image);
       });
 
+      // 기존 이미지 ID들 전송
+      formDataToSend.append('existing_images', JSON.stringify(existingImages.map(img => img.image_id)));
+
+      // 옵션 추가
       formDataToSend.append('options', JSON.stringify(options));
 
-      await axios.post('http://localhost:5000/api/admin/products', formDataToSend, {
+      await axios.put(`http://localhost:5000/api/admin/products/${id}`, formDataToSend, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
         }
       });
 
-      alert('상품이 등록되었습니다!');
+      alert('상품이 수정되었습니다!');
       navigate('/admin/products');
 
     } catch (error) {
-      console.error('상품 등록 실패:', error);
-      alert(error.response?.data?.message || '상품 등록에 실패했습니다.');
+      console.error('상품 수정 실패:', error);
+      alert(error.response?.data?.message || '상품 수정에 실패했습니다.');
     } finally {
       setLoading(false);
     }
   };
 
+  if (dataLoading) {
+    return <div className="loading">로딩 중...</div>;
+  }
+
   return (
     <div className="admin-product-form">
       <div className="form-header">
-        <h1>상품 등록</h1>
+        <h1>상품 수정</h1>
         <button className="btn-back" onClick={() => navigate('/admin/products')}>
           ← 목록으로
         </button>
@@ -246,7 +302,6 @@ function AdminProductCreate() {
               </select>
             </div>
 
-            {/* ⭐ 성별 선택 추가 */}
             <div className="form-group">
               <label>성별 *</label>
               <select
@@ -275,10 +330,37 @@ function AdminProductCreate() {
           </div>
         </div>
 
+        {/* 이미지 섹션 */}
         <div className="form-section">
           <h2>상품 이미지</h2>
+          
+          {/* 기존 이미지 */}
+          {existingImages.length > 0 && (
+            <div className="existing-images">
+              <h3>기존 이미지</h3>
+              <div className="image-preview-container">
+                {existingImages.map((img, index) => (
+                  <div key={img.image_id} className="image-preview">
+                    <img src={`http://localhost:5000${img.image_url}`} alt={`기존 이미지 ${index + 1}`} />
+                    <span className="preview-label">
+                      {img.is_thumbnail ? '대표 이미지' : `이미지 ${index + 1}`}
+                    </span>
+                    <button
+                      type="button"
+                      className="btn-remove-image"
+                      onClick={() => removeExistingImage(img.image_id)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 새 이미지 업로드 */}
           <div className="form-group">
-            <label>이미지 업로드 (최대 5장)</label>
+            <label>새 이미지 업로드 (최대 5장)</label>
             <input
               type="file"
               accept="image/*,.jfif"
@@ -287,28 +369,28 @@ function AdminProductCreate() {
               className="file-input"
             />
             <p className="form-hint">
-              첫 번째 이미지가 대표 이미지로 설정됩니다.<br/>
+              새 이미지를 추가하면 기존 이미지는 유지됩니다.<br/>
               지원 형식: jpg, jpeg, png, gif, webp, jfif
             </p>
             {images.length > 0 && (
-              <p className="selected-files">{images.length}개 파일 선택됨</p>
+              <p className="selected-files">{images.length}개 새 파일 선택됨</p>
             )}
           </div>
 
+          {/* 새 이미지 미리보기 */}
           {imagePreviews.length > 0 && (
             <div className="image-preview-container">
               {imagePreviews.map((preview, index) => (
                 <div key={index} className="image-preview">
-                  <img src={preview} alt={`미리보기 ${index + 1}`} />
-                  <span className="preview-label">
-                    {index === 0 ? '대표 이미지' : `이미지 ${index + 1}`}
-                  </span>
+                  <img src={preview} alt={`새 이미지 ${index + 1}`} />
+                  <span className="preview-label">새 이미지 {index + 1}</span>
                 </div>
               ))}
             </div>
           )}
         </div>
 
+        {/* 옵션 섹션 */}
         <div className="form-section">
           <h2>상품 옵션</h2>
           
@@ -374,7 +456,7 @@ function AdminProductCreate() {
             취소
           </button>
           <button type="submit" className="btn-submit" disabled={loading}>
-            {loading ? '등록 중...' : '상품 등록'}
+            {loading ? '수정 중...' : '상품 수정'}
           </button>
         </div>
       </form>
@@ -382,4 +464,4 @@ function AdminProductCreate() {
   );
 }
 
-export default AdminProductCreate;
+export default AdminProductForm;

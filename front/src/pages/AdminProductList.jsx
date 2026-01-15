@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AdminProductList.css';
 
+
 function AdminProductList() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -110,10 +111,13 @@ function AdminProductList() {
                 <tr key={product.product_id}>
                   <td>
                     <div className="product-thumbnail">
-                      <img 
-                        src={product.thumbnail || 'https://via.placeholder.com/80'} 
-                        alt={product.name} 
-                      />
+                     <img 
+                    src={product.thumbnail 
+                    ? `http://localhost:5000${product.thumbnail}` 
+                    : 'https://via.placeholder.com/400'
+                  } 
+                    alt={product.name} 
+                    />
                     </div>
                   </td>
                   <td>
@@ -142,11 +146,11 @@ function AdminProductList() {
                   <td>
                     <div className="action-buttons">
                       <button 
-                        className="btn-edit"
-                        onClick={() => alert('수정 기능은 준비중입니다.')}
-                      >
-                        수정
-                      </button>
+                       className="btn-edit"
+  onClick={() => navigate(`/admin/products/${product.product_id}/edit`)}
+>
+  수정
+</button>
                       <button 
                         className="btn-delete"
                         onClick={() => handleDelete(product.product_id, product.name)}

@@ -1,34 +1,27 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from '../utils/axios';
 import './HomePage.css';
 
 function HomePage() {
-  // 임시 데이터 (나중에 API에서 가져올 예정)
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "미니멀 화이트 티셔츠",
-      price: 29000,
-      image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500"
-    },
-    {
-      id: 2,
-      name: "베이직 블랙 팬츠",
-      price: 59000,
-      image: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=500"
-    },
-    {
-      id: 3,
-      name: "오버핏 셔츠",
-      price: 49000,
-      image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500"
-    },
-    {
-      id: 4,
-      name: "와이드 데님 팬츠",
-      price: 69000,
-      image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=500"
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchFeaturedProducts();
+  }, []);
+
+  const fetchFeaturedProducts = async () => {
+    try {
+      const response = await axios.get('/products?sort=latest');
+      // 최신 상품 4개만 가져오기
+      setFeaturedProducts(response.data.products.slice(0, 4));
+    } catch (error) {
+      console.error('상품 조회 실패:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   return (
     <div className="homepage">
@@ -43,11 +36,11 @@ function HomePage() {
         </div>
       </section>
 
-      {/* 카테고리 섹션 */}
+      {/* 카테고리 섹션 - ⭐ 수정 */}
       <section className="categories">
         <div className="container">
           <div className="category-grid">
-            <Link to="/products?category=men" className="category-card">
+            <Link to="/products?gender=male" className="category-card">
               <img 
                 src="https://images.unsplash.com/photo-1490114538077-0a7f8cb49891?w=600" 
                 alt="Men's Collection" 
@@ -56,7 +49,7 @@ function HomePage() {
                 <h3>Men's Collection</h3>
               </div>
             </Link>
-            <Link to="/products?category=women" className="category-card">
+            <Link to="/products?gender=female" className="category-card">
               <img 
                 src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600" 
                 alt="Women's Collection" 
@@ -73,20 +66,53 @@ function HomePage() {
       <section className="featured">
         <div className="container">
           <h2 className="section-title">Featured Products</h2>
-          <div className="product-grid">
-            {featuredProducts.map(product => (
-              <Link to={`/products/${product.id}`} key={product.id} className="product-card">
-                <div className="product-image">
-                  <img src={product.image} alt={product.name} />
-                  <button className="quick-view">Quick View</button>
-                </div>
-                <div className="product-info">
-                  <h3 className="product-name">{product.name}</h3>
-                  <p className="product-price">{product.price.toLocaleString()}원</p>
-                </div>
-              </Link>
-            ))}
-          </div>
+          
+          {loading ? (
+            <div className="loading-state">상품을 불러오는 중...</div>
+          ) : featuredProducts.length === 0 ? (
+            <div className="empty-state">
+              <p>등록된 상품이 없습니다.</p>
+              <p>관리자 페이지에서 상품을 등록해주세요!</p>
+            </div>
+          ) : (
+            <div className="product-grid">
+              {featuredProducts.map(product => (
+                <Link 
+                  to={`/products/${product.product_id}`} 
+                  key={product.product_id} 
+                  className="product-card"
+                >
+                  <div className="product-image">
+                    <img 
+                      src={product.thumbnail 
+                        ? `http://localhost:5000${product.thumbnail}`
+                        : 'https://via.placeholder.com/400'
+                      } 
+                      alt={product.name} 
+                    />
+                    <button className="quick-view">Quick View</button>
+                  </div>
+                  <div className="product-info">
+                    <h3 className="product-name">{product.name}</h3>
+                    <p className="product-price">
+                      {product.discount_price ? (
+                        <>
+                          <span className="original-price">
+                            {Number(product.price).toLocaleString()}원
+                          </span>
+                          <span className="discount-price">
+                            {Number(product.discount_price).toLocaleString()}원
+                          </span>
+                        </>
+                      ) : (
+                        <span>{Number(product.price).toLocaleString()}원</span>
+                      )}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

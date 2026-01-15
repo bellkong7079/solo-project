@@ -239,3 +239,104 @@ exports.createCategory = async (req, res) => {
     res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
 };
+
+exports.getOrders = async (req, res) => {
+  try {
+    const [orders] = await db.query(`
+      SELECT 
+        o.*,
+        COUNT(oi.order_item_id) as item_count
+      FROM orders o
+      LEFT JOIN order_items oi ON o.order_id = oi.order_id
+      GROUP BY o.order_id
+      ORDER BY o.created_at DESC
+    `);
+
+    res.json({ orders });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+  }
+};
+
+// 주문 상태 변경
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    await db.query(
+      'UPDATE orders SET status = ? WHERE order_id = ?',
+      [status, orderId]
+    );
+
+    res.json({ message: '주문 상태가 변경되었습니다.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+  }
+};
+// 대시보드 통계
+exports.getDashboardStats = async (req, res) => {
+  try {
+    // 전체 상품 수
+    const [products] = await db.query('SELECT COUNT(*) as count FROM products');
+    
+    // 오늘 주문 수
+    const [todayOrders] = await db.query(
+      'SELECT COUNT(*) as count FROM orders WHERE DATE(created_at) = CURDATE()'
+    );
+    
+    // 전체 회원 수
+    const [users] = await db.query('SELECT COUNT(*) as count FROM users');
+    
+    // 총 매출
+    const [sales] = await db.query(
+      'SELECT COALESCE(SUM(total_price), 0) as total FROM orders WHERE status != "cancelled"'
+    );
+
+    res.json({
+      totalProducts: products[0].count,
+      todayOrders: todayOrders[0].count,
+      totalUsers: users[0].count,
+      totalSales: sales[0].total
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+  }
+};
+// 주문 상세 조회
+exports.getOrderDetail = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    // 주문 기본 정보
+    const [orders] = await db.query(
+      'SELECT * FROM orders WHERE order_id = ?',
+      [orderId]
+    );
+
+    if (orders.length === 0) {
+      return res.status(404).json({ message: '주문을 찾을 수 없습니다.' });
+    }
+
+    // 주문 상품 정보
+    const [items] = await db.query(`
+      SELECT oi.*, p.name as product_name
+      FROM order_items oi
+      LEFT JOIN products p ON oi.product_id = p.product_id
+      WHERE oi.order_id = ?
+    `, [orderId]);
+
+    res.json({
+      order: {
+        ...orders[0],
+        items
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+  }
+};

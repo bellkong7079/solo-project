@@ -18,7 +18,8 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/products', require('./routes/products'));
-app.use('/api/cart', require('./routes/cart'));  // ✅ 여기로 이동!
+app.use('/api/cart', require('./routes/cart'));
+app.use('/api/orders', require('./routes/orders'));  // ← 이 줄 추가!
 
 // 기본 라우트
 app.get('/', (req, res) => {

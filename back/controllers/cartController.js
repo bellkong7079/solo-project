@@ -29,8 +29,13 @@ exports.getCart = async (req, res) => {
     // 총 금액 계산
     let totalPrice = 0;
     const items = cartItems.map(item => {
-      const itemPrice = (item.discount_price || item.price) + (item.additional_price || 0);
-      const itemTotal = itemPrice * item.quantity;
+      // ✅ 문자열을 숫자로 변환!
+      const basePrice = Number(item.discount_price) || Number(item.price) || 0;
+      const additionalPrice = Number(item.additional_price) || 0;
+      const quantity = Number(item.quantity) || 1;
+      
+      const itemPrice = basePrice + additionalPrice;
+      const itemTotal = itemPrice * quantity;
       totalPrice += itemTotal;
       
       return {
@@ -47,7 +52,7 @@ exports.getCart = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error('장바구니 조회 에러:', error);
     res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
 };
