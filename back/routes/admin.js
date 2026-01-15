@@ -366,11 +366,10 @@ router.get('/orders/:id', authMiddleware, async (req, res) => {
 });
 
 // ⭐ 주문 상태 변경
-router.patch('/orders/:id/status', authMiddleware, async (req, res) => {
+router.put('/orders/:id/status', authMiddleware, async (req, res) => {
   try {
     const orderId = req.params.id;
     const { status } = req.body;
-    
     await db.query(
       'UPDATE orders SET status = ? WHERE order_id = ?',
       [status, orderId]
@@ -378,6 +377,7 @@ router.patch('/orders/:id/status', authMiddleware, async (req, res) => {
     
     res.json({ message: '주문 상태가 변경되었습니다.' });
   } catch (error) {
+    console.log("hello")
     console.error('주문 상태 변경 실패:', error);
     res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
