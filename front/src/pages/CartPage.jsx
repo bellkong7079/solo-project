@@ -96,7 +96,7 @@ function CartPage() {
                 <Link to={`/products/${item.product_id}`} className="item-image">
                   <img 
                     src={item.thumbnail 
-                      ? `http://localhost:5000${item.thumbnail}` 
+                      ? `http://192.168.0.219:5000${item.thumbnail}` 
                       : 'https://via.placeholder.com/120'
                     } 
                     alt={item.name} 

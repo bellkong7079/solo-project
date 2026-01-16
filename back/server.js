@@ -22,7 +22,7 @@ app.use('/api/cart', require('./routes/cart'));
 app.use('/api/orders', require('./routes/orders'));  // ← 이 줄 추가!
 
 // 기본 라우트
-app.get('/', (req, res) => {
+app.get('/',async (req, res) => {
   res.json({ message: '패션 쇼핑몰 API 서버' });
 });
 
@@ -35,6 +35,6 @@ app.use((err, req, res, next) => {
 // 서버 시작 (라우트 등록 후 마지막에!)
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+app.listen(PORT,'0.0.0.0', () => {
   console.log(`✅ 서버가 포트 ${PORT}에서 실행중입니다.`);
 });

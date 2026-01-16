@@ -26,7 +26,7 @@ function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
+      const response = await axios.post('http://192.168.0.219:5000/api/auth/login', formData);
       
       // 토큰 저장
       localStorage.setItem('token', response.data.token);

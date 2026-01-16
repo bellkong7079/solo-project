@@ -16,7 +16,8 @@ import OrderCompletePage from './pages/OrderCompletePage';
 import AdminOrderList from './pages/AdminOrderList';
 import AdminOrderDetail from './pages/AdminOrderDetail';
 import AdminProductForm from './pages/AdminProductForm';
-
+import FAQ from './pages/FAQ';
+import ShippingGuide from './pages/ShippingGuide';
 
 
 
@@ -41,7 +42,9 @@ function AppContent() {
         <Route path="/products/:id" element={<ProductDetailPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/order-complete/:orderId" element={<OrderCompletePage />} />
-        
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/shipping" element={<ShippingGuide />} />
+
         {/* 관리자 페이지 */}
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />

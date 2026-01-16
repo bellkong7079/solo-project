@@ -1,0 +1,402 @@
+.shipping-guide-page {
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding-bottom: 60px;
+}
+
+.page-header {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.page-header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.guide-content {
+  max-width: 900px;
+  margin: -40px auto 40px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 0;
+  overflow: hidden;
+}
+
+.guide-section {
+  padding: 40px;
+  border-bottom: 1px solid #eee;
+}
+
+.guide-section:last-child {
+  border-bottom: none;
+}
+
+.section-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.guide-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+/* 정보 박스 */
+.info-box {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-row.highlight {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.label {
+  font-weight: 500;
+  color: #555;
+}
+
+.info-row.highlight .label {
+  color: white;
+}
+
+.value {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #f5576c;
+}
+
+.info-row.highlight .value {
+  color: white;
+  font-size: 1.2rem;
+}
+
+/* 타임라인 */
+.timeline {
+  position: relative;
+  padding: 20px 0;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 19px;
+  top: 40px;
+  width: 2px;
+  height: calc(100% + 30px);
+  background: #e9ecef;
+}
+
+.timeline-item:last-child::before {
+  display: none;
+}
+
+.timeline-dot {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  z-index: 1;
+}
+
+.timeline-content h3 {
+  margin-bottom: 5px;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.timeline-content p {
+  color: #666;
+  margin: 0;
+}
+
+.highlight-box {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 15px 20px;
+  margin: 20px 0;
+  border-radius: 4px;
+}
+
+/* 단계 카드 */
+.step-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.step-card {
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 8px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.step-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.step-number {
+  display: inline-block;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 15px;
+}
+
+.step-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.step-card p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* 택배사 목록 */
+.courier-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.courier-item {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 25px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.courier-item:hover {
+  border-color: #f5576c;
+  box-shadow: 0 4px 12px rgba(245, 87, 108, 0.1);
+}
+
+.courier-item h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.courier-item p {
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.courier-item a {
+  display: inline-block;
+  color: #f5576c;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.courier-item a:hover {
+  color: #f093fb;
+  transform: translateX(5px);
+}
+
+/* FAQ 목록 */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.faq-item {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #f5576c;
+}
+
+.faq-item h3 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.faq-item p {
+  color: #666;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* 유의사항 */
+.notice-section {
+  background: #fff8f0;
+}
+
+.notice-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notice-list li {
+  padding: 12px 0 12px 30px;
+  position: relative;
+  color: #666;
+  line-height: 1.6;
+}
+
+.notice-list li::before {
+  content: '•';
+  position: absolute;
+  left: 10px;
+  color: #f5576c;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+/* 노트 */
+.note {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* 연락처 박스 */
+.contact-box {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border-radius: 12px;
+  color: white;
+  text-align: center;
+}
+
+.contact-box h3 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.contact-box > p {
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+
+.contact-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  text-align: left;
+}
+
+.contact-item .icon {
+  font-size: 2rem;
+}
+
+.contact-item strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 1.1rem;
+}
+
+.contact-item p {
+  margin: 0;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .guide-content {
+    margin: -20px 15px 40px;
+  }
+
+  .guide-section {
+    padding: 30px 20px;
+  }
+
+  .guide-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .step-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .courier-list {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-box {
+    margin: 0 15px;
+    padding: 30px 20px;
+  }
+
+  .contact-info {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}

@@ -114,11 +114,11 @@ function ProductDetailPage() {
         ...img,
         image_url: img.image_url.startsWith('http') 
           ? img.image_url 
-          : `http://localhost:5000${img.image_url}`
+          : `http://192.168.0.219:5000${img.image_url}`
       }))
     : [{ 
         image_url: product.thumbnail 
-          ? `http://localhost:5000${product.thumbnail}`
+          ? `http://192.168.0.219:5000${product.thumbnail}`
           : 'https://via.placeholder.com/600' 
       }];
 

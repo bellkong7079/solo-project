@@ -52,6 +52,7 @@ function Footer() {
 
         <div className="footer-bottom">
           <p>&copy; 2026 MINIMAL. All rights reserved.</p>
+          <p>Made by 윤종빈</p>
         </div>
       </div>
     </footer>

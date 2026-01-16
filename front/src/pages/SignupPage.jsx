@@ -38,7 +38,7 @@ const SignupPage = () => {
 
     try {
       // ✅ 백엔드 회원가입 엔드포인트 (필요하면 여기만 수정)
-      const res = await axios.post('http://localhost:5000/api/auth/register', {
+      const res = await axios.post('http://192.168.0.219:5000/api/auth/register', {
         name: form.name,
         email: form.email,
         password: form.password,
