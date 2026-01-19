@@ -16,10 +16,11 @@ function Footer() {
           <div className="footer-section">
             <h4 className="footer-subtitle">Shop</h4>
             <ul className="footer-links">
-              <li><a href="/products?category=new">New Arrivals</a></li>
-              <li><a href="/products?category=men">Men</a></li>
-              <li><a href="/products?category=women">Women</a></li>
-              <li><a href="/products?category=sale">Sale</a></li>
+              <li><a href="/products?category=상의">Tops</a></li>
+              <li><a href="/products?category=하의">bottoms</a></li>
+              <li><a href="/products?category=아우터">outerwear</a></li>
+              <li><a href="/products?category=신발">shoes</a></li>
+              <li><a href="/products?category=악세서리">accessories</a></li>
             </ul>
           </div>
 

@@ -1,14 +1,21 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import './Header.css';
+
+const API_URL = 'http://192.168.0.219:5000/api';
 
 function Header() {
   const [user, setUser] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [activeDropdown, setActiveDropdown] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     // 로그인 상태 확인
     checkLoginStatus();
+    // 카테고리 불러오기
+    fetchCategories();
   }, []);
 
   const checkLoginStatus = () => {
@@ -41,6 +48,15 @@ function Header() {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/categories`);
+      setCategories(response.data.categories);
+    } catch (error) {
+      console.error('카테고리 조회 실패:', error);
+    }
+  };
+
   const handleLogout = () => {
     if (window.confirm('로그아웃 하시겠습니까?')) {
       // 일반 사용자 토큰 삭제
@@ -55,6 +71,14 @@ function Header() {
     }
   };
 
+  const handleMouseEnter = (categoryId) => {
+    setActiveDropdown(categoryId);
+  };
+
+  const handleMouseLeave = () => {
+    setActiveDropdown(null);
+  };
+
   return (
     <header className="header">
       <div className="header-content">
@@ -63,11 +87,38 @@ function Header() {
           jongbin'S 服屋
         </Link>
 
-        {/* 네비게이션 */}
+        {/* 네비게이션 - 동적 카테고리 */}
         <nav className="nav">
-          <Link to="/products?category=men" className="nav-link">Men</Link>
-          <Link to="/products?category=women" className="nav-link">Women</Link>
-          <Link to="/products?category=new" className="nav-link">New</Link>
+          {categories.map(category => (
+            <div 
+              key={category.category_id}
+              className="nav-item-wrapper"
+              onMouseEnter={() => handleMouseEnter(category.category_id)}
+              onMouseLeave={handleMouseLeave}
+            >
+              <Link 
+                to={`/products?category=${category.slug}`} 
+                className="nav-link"
+              >
+                {category.name}
+              </Link>
+              
+              {/* 하위 카테고리(소분류) 드롭다운 */}
+              {category.children && category.children.length > 0 && (
+                <div className={`dropdown-menu ${activeDropdown === category.category_id ? 'show' : ''}`}>
+                  {category.children.map(subCategory => (
+                    <Link
+                      key={subCategory.category_id}
+                      to={`/products?category=${subCategory.slug}`}
+                      className="dropdown-item"
+                    >
+                      {subCategory.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </nav>
 
         {/* 우측 메뉴 */}

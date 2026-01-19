@@ -18,7 +18,9 @@ import AdminOrderDetail from './pages/AdminOrderDetail';
 import AdminProductForm from './pages/AdminProductForm';
 import FAQ from './pages/FAQ';
 import ShippingGuide from './pages/ShippingGuide';
-
+import ChatWidget from './components/ChatWidget';
+import AdminChatPage from './pages/AdminChatPage';
+import AdminCategoryPage from './pages/AdminCategoryPage';
 
 
 function AppContent() {
@@ -53,10 +55,15 @@ function AppContent() {
         <Route path="/admin/products/:id/edit" element={<AdminProductForm />} />
         <Route path="/admin/orders" element={<AdminOrderList />} />
         <Route path="/admin/orders/:orderId" element={<AdminOrderDetail />} />
+        <Route path="/admin/chat" element={<AdminChatPage />} />
+        <Route path="/admin/categories" element={<AdminCategoryPage />} />
       </Routes>
       
       {/* 관리자 페이지가 아닐 때만 Footer 표시 */}
       {!isAdminPage && <Footer />}
+
+      {/* ⭐ 채팅 위젯 - Routes 밖에, 항상 화면 오른쪽 하단에 표시 */}
+      {!isAdminPage && <ChatWidget />}
     </>
   );
 }

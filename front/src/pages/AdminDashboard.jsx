@@ -121,6 +121,13 @@ function AdminDashboard() {
             </svg>
             카테고리 관리
           </Link>
+         <Link to="/admin/chat" className="nav-item">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            고객 상담
+         </Link>
+
         </nav>
 
         <button className="logout-btn" onClick={handleLogout}>
@@ -209,7 +216,7 @@ function AdminDashboard() {
                   </svg>
                   상품 등록
                 </Link>
-
+                
                 <Link to="/admin/products" className="action-btn">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
@@ -229,6 +236,12 @@ function AdminDashboard() {
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                   </svg>
                   쇼핑몰 보기
+                </Link>
+                <Link to="/admin/chat" className="action-btn">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  고객 상담
                 </Link>
               </div>
             </div>

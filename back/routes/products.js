@@ -7,7 +7,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 // 상품 목록 조회 (사용자용)
 router.get('/', async (req, res) => {
   try {
-    const { category_id, gender, search, sort } = req.query;  // ⭐ gender 추가
+    const { category_id, category, gender, search, sort } = req.query;  // ⭐ category 추가
     
     let query = `
       SELECT 
@@ -21,15 +21,45 @@ router.get('/', async (req, res) => {
     
     const params = [];
 
-    // ⭐ 성별 필터 추가
+    // 성별 필터 추가
     if (gender && ['male', 'female', 'unisex'].includes(gender)) {
       query += ' AND p.gender = ?';
       params.push(gender);
     }
 
+    // ⭐ category_id로 필터링 (기존 방식)
     if (category_id) {
       query += ' AND p.category_id = ?';
       params.push(category_id);
+    }
+    // ⭐ category slug로 필터링 (새로운 방식)
+    else if (category) {
+      // slug로 카테고리 찾기 (대분류 또는 소분류)
+      const [categories] = await db.query(
+        'SELECT category_id FROM categories WHERE slug = ? AND is_active = 1',
+        [category]
+      );
+      
+      if (categories.length > 0) {
+        const categoryId = categories[0].category_id;
+        
+        // 해당 카테고리 또는 그 하위 카테고리의 상품들을 찾기
+        const [childCategories] = await db.query(
+          'SELECT category_id FROM categories WHERE parent_id = ? AND is_active = 1',
+          [categoryId]
+        );
+        
+        if (childCategories.length > 0) {
+          // 대분류인 경우: 자기 자신 + 모든 하위 카테고리
+          const categoryIds = [categoryId, ...childCategories.map(c => c.category_id)];
+          query += ` AND p.category_id IN (${categoryIds.map(() => '?').join(',')})`;
+          params.push(...categoryIds);
+        } else {
+          // 소분류인 경우: 자기 자신만
+          query += ' AND p.category_id = ?';
+          params.push(categoryId);
+        }
+      }
     }
 
     if (search) {
@@ -64,10 +94,9 @@ router.post('/', authMiddleware, upload.array('images', 5), async (req, res) => 
     console.log('받은 데이터:', req.body);
     console.log('파일 정보:', req.files);
     
-    const { name, description, price, discount_price, category_id, gender, status } = req.body;  // ⭐ gender 추가
+    const { name, description, price, discount_price, category_id, gender, status } = req.body;
     const options = JSON.parse(req.body.options || '[]');
     
-    // ⭐ gender 추가
     const [productResult] = await connection.query(
       `INSERT INTO products (name, description, price, discount_price, category_id, gender, status, created_at) 
        VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
