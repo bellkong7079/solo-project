@@ -10,11 +10,11 @@ function ProductListPage() {
   const [sortBy, setSortBy] = useState('latest');
 
   const category = searchParams.get('category');
-  const gender = searchParams.get('gender');  // ⭐ 추가
+  const gender = searchParams.get('gender');
 
   useEffect(() => {
     fetchProducts();
-  }, [category, gender, sortBy]);  // ⭐ gender 추가
+  }, [category, gender, sortBy]);
 
   const fetchProducts = async () => {
     try {
@@ -22,7 +22,7 @@ function ProductListPage() {
       const params = [];
       
       if (category) params.push(`category=${category}`);
-      if (gender) params.push(`gender=${gender}`);  // ⭐ 추가
+      if (gender) params.push(`gender=${gender}`);
       if (sortBy) params.push(`sort=${sortBy}`);
       
       if (params.length > 0) {
@@ -39,7 +39,7 @@ function ProductListPage() {
   };
 
   const getCategoryTitle = () => {
-    // ⭐ 성별에 따른 타이틀
+    // 성별에 따른 타이틀
     if (gender === 'male') return "남성 상품";
     if (gender === 'female') return "여성 상품";
     if (gender === 'unisex') return "유니섹스 상품";
@@ -47,6 +47,10 @@ function ProductListPage() {
     if (category === 'men') return "Men's Collection";
     if (category === 'women') return "Women's Collection";
     if (category === 'new') return "New Arrivals";
+    
+    // 카테고리가 있으면 표시
+    if (category) return `${category}`;
+    
     return "전체 상품";
   };
 
@@ -111,6 +115,7 @@ function ProductListPage() {
                 </div>
                 
                 <div className="product-info">
+                  <p className="product-category">{product.category_name}</p>
                   <h3 className="product-name">{product.name}</h3>
                   <div className="product-price">
                     {product.discount_price ? (
