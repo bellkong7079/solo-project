@@ -104,7 +104,7 @@ function OrderCompletePage() {
                 <div key={index} className="order-item">
                   <img 
                     src={item.thumbnail 
-                      ? `http://192.168.0.219:5000${item.thumbnail}`
+                      ? `http://localhost:5000${item.thumbnail}`
                       : 'https://via.placeholder.com/80'
                     } 
                     alt={item.product_name} 

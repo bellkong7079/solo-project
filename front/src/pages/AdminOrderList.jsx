@@ -22,7 +22,7 @@ function AdminOrderList() {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('http://192.168.0.219:5000/api/admin/orders', {
+      const response = await axios.get('http://localhost:5000/api/admin/orders', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders(response.data.orders);
@@ -42,7 +42,7 @@ function AdminOrderList() {
     try {
       const token = localStorage.getItem('adminToken');
       await axios.put(
-        `http://192.168.0.219:5000/api/admin/orders/${orderId}/status`,
+        `http://localhost:5000/api/admin/orders/${orderId}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

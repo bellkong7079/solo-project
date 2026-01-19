@@ -266,7 +266,7 @@ function CheckoutPage() {
                     <div key={item.cart_id} className="order-item">
                       <img 
                         src={item.thumbnail 
-                          ? `http://192.168.0.219:5000${item.thumbnail}`
+                          ? `http://localhost:5000${item.thumbnail}`
                           : 'https://via.placeholder.com/80'
                         } 
                         alt={item.name || '상품'} 
