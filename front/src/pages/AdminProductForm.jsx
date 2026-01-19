@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import './AdminProductForm.css';
+import AdminLayout from '../components/AdminLayout';
 
 function AdminProductForm() {
   const navigate = useNavigate();
-  const { id } = useParams();  // URL에서 상품 ID 가져오기
+  const { id } = useParams();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [dataLoading, setDataLoading] = useState(true);  // 데이터 로딩 상태
+  const [dataLoading, setDataLoading] = useState(true);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -22,7 +23,7 @@ function AdminProductForm() {
 
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
-  const [existingImages, setExistingImages] = useState([]);  // 기존 이미지
+  const [existingImages, setExistingImages] = useState([]);
   const [options, setOptions] = useState([]);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ function AdminProductForm() {
       return;
     }
     fetchCategories();
-    fetchProductData();  // ⭐ 상품 데이터 불러오기
+    fetchProductData();
   }, [id, navigate]);
 
   useEffect(() => {
@@ -54,7 +55,6 @@ function AdminProductForm() {
     }
   };
 
-  // ⭐ 상품 데이터 불러오기
   const fetchProductData = async () => {
     try {
       const token = localStorage.getItem('adminToken');
@@ -64,7 +64,6 @@ function AdminProductForm() {
       
       const product = response.data.product;
       
-      // 기본 정보 설정
       setFormData({
         name: product.name || '',
         description: product.description || '',
@@ -75,12 +74,10 @@ function AdminProductForm() {
         status: product.status || 'active'
       });
 
-      // 기존 이미지 설정
       if (product.images && product.images.length > 0) {
         setExistingImages(product.images);
       }
 
-      // 옵션 설정
       if (product.options && product.options.length > 0) {
         setOptions(product.options);
       } else {
@@ -149,7 +146,6 @@ function AdminProductForm() {
     setImagePreviews(previews);
   };
 
-  // 기존 이미지 삭제
   const removeExistingImage = (imageId) => {
     setExistingImages(existingImages.filter(img => img.image_id !== imageId));
   };
@@ -190,15 +186,11 @@ function AdminProductForm() {
       formDataToSend.append('gender', formData.gender);
       formDataToSend.append('status', formData.status);
 
-      // 새 이미지 추가
       images.forEach(image => {
         formDataToSend.append('images', image);
       });
 
-      // 기존 이미지 ID들 전송
       formDataToSend.append('existing_images', JSON.stringify(existingImages.map(img => img.image_id)));
-
-      // 옵션 추가
       formDataToSend.append('options', JSON.stringify(options));
 
       await axios.put(`http://localhost:5000/api/admin/products/${id}`, formDataToSend, {
@@ -220,11 +212,15 @@ function AdminProductForm() {
   };
 
   if (dataLoading) {
-    return <div className="loading">로딩 중...</div>;
+    return (
+      <AdminLayout>
+        <div className="loading">로딩 중...</div>
+      </AdminLayout>
+    );
   }
 
   return (
-    <div className="admin-product-form">
+    <AdminLayout>
       <div className="form-header">
         <h1>상품 수정</h1>
         <button className="btn-back" onClick={() => navigate('/admin/products')}>
@@ -330,11 +326,9 @@ function AdminProductForm() {
           </div>
         </div>
 
-        {/* 이미지 섹션 */}
         <div className="form-section">
           <h2>상품 이미지</h2>
           
-          {/* 기존 이미지 */}
           {existingImages.length > 0 && (
             <div className="existing-images">
               <h3>기존 이미지</h3>
@@ -358,7 +352,6 @@ function AdminProductForm() {
             </div>
           )}
 
-          {/* 새 이미지 업로드 */}
           <div className="form-group">
             <label>새 이미지 업로드 (최대 5장)</label>
             <input
@@ -377,7 +370,6 @@ function AdminProductForm() {
             )}
           </div>
 
-          {/* 새 이미지 미리보기 */}
           {imagePreviews.length > 0 && (
             <div className="image-preview-container">
               {imagePreviews.map((preview, index) => (
@@ -390,7 +382,6 @@ function AdminProductForm() {
           )}
         </div>
 
-        {/* 옵션 섹션 */}
         <div className="form-section">
           <h2>상품 옵션</h2>
           
@@ -460,7 +451,7 @@ function AdminProductForm() {
           </button>
         </div>
       </form>
-    </div>
+    </AdminLayout>
   );
 }
 

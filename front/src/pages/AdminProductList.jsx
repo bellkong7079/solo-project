@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AdminProductList.css';
-
+import AdminLayout from '../components/AdminLayout';
 
 function AdminProductList() {
   const navigate = useNavigate();
@@ -54,14 +54,14 @@ function AdminProductList() {
 
   if (loading) {
     return (
-      <div className="admin-product-list">
+      <AdminLayout>
         <div className="loading">로딩 중...</div>
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="admin-product-list">
+    <AdminLayout>
       <div className="list-header">
         <h1>상품 관리</h1>
         <div className="header-actions">
@@ -111,13 +111,13 @@ function AdminProductList() {
                 <tr key={product.product_id}>
                   <td>
                     <div className="product-thumbnail">
-                     <img 
-                    src={product.thumbnail 
-                    ? `http://localhost:5000${product.thumbnail}` 
-                    : 'https://via.placeholder.com/400'
-                  } 
-                    alt={product.name} 
-                    />
+                      <img 
+                        src={product.thumbnail 
+                          ? `http://localhost:5000${product.thumbnail}` 
+                          : 'https://via.placeholder.com/400'
+                        } 
+                        alt={product.name} 
+                      />
                     </div>
                   </td>
                   <td>
@@ -146,11 +146,11 @@ function AdminProductList() {
                   <td>
                     <div className="action-buttons">
                       <button 
-                       className="btn-edit"
-  onClick={() => navigate(`/admin/products/${product.product_id}/edit`)}
->
-  수정
-</button>
+                        className="btn-edit"
+                        onClick={() => navigate(`/admin/products/${product.product_id}/edit`)}
+                      >
+                        수정
+                      </button>
                       <button 
                         className="btn-delete"
                         onClick={() => handleDelete(product.product_id, product.name)}
@@ -165,7 +165,7 @@ function AdminProductList() {
           </table>
         </div>
       )}
-    </div>
+    </AdminLayout>
   );
 }
 

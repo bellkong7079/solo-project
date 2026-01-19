@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 import axios from '../utils/axios';
 import './ChatWidget.css';
 
-const SOCKET_URL = 'http://192.168.0.219:5000';
+const SOCKET_URL = 'http://localhost:5000';
 
 function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);

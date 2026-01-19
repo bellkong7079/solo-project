@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AdminOrderList.css';
+import AdminLayout from '../components/AdminLayout';
 
 function AdminOrderList() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); // all, pending, paid, shipping, delivered
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -75,14 +76,14 @@ function AdminOrderList() {
 
   if (loading) {
     return (
-      <div className="admin-order-list">
+      <AdminLayout>
         <div className="loading">로딩 중...</div>
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="admin-order-list">
+    <AdminLayout>
       <div className="list-header">
         <h1>주문 관리</h1>
         <div className="header-actions">
@@ -199,7 +200,7 @@ function AdminOrderList() {
           </table>
         </div>
       )}
-    </div>
+    </AdminLayout>
   );
 }
 

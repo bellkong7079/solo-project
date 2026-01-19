@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AdminOrderDetail.css';
+import AdminLayout from '../components/AdminLayout';
 
 function AdminOrderDetail() {
   const { orderId } = useParams();
@@ -46,15 +47,23 @@ function AdminOrderDetail() {
   };
 
   if (loading) {
-    return <div className="admin-order-detail"><div className="loading">로딩 중...</div></div>;
+    return (
+      <AdminLayout>
+        <div className="loading">로딩 중...</div>
+      </AdminLayout>
+    );
   }
 
   if (!order) {
-    return <div className="admin-order-detail"><div className="error">주문을 찾을 수 없습니다.</div></div>;
+    return (
+      <AdminLayout>
+        <div className="error">주문을 찾을 수 없습니다.</div>
+      </AdminLayout>
+    );
   }
 
   return (
-    <div className="admin-order-detail">
+    <AdminLayout>
       <div className="detail-header">
         <button className="btn-back" onClick={() => navigate('/admin/orders')}>
           ← 주문 목록
@@ -137,7 +146,7 @@ function AdminOrderDetail() {
           </table>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
 

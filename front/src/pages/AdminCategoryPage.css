@@ -1,18 +1,5 @@
 /* front/src/pages/AdminCategoryPage.css */
 
-.admin-category-page {
-  display: flex;
-  min-height: 100vh;
-  background: #f5f7fa;
-}
-
-/* 메인 컨텐츠 */
-.admin-main {
-  flex: 1;
-  padding: 30px;
-  margin-left: 260px;
-}
-
 .admin-header {
   display: flex;
   justify-content: space-between;
@@ -433,11 +420,6 @@
 }
 
 @media (max-width: 768px) {
-  .admin-main {
-    margin-left: 0;
-    padding: 20px;
-  }
-
   .category-stats {
     grid-template-columns: 1fr;
   }

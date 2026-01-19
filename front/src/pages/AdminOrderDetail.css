@@ -1,8 +1,4 @@
-    .admin-order-detail {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 40px 20px;
-}
+
 
 .detail-header {
   margin-bottom: 30px;
@@ -127,4 +123,7 @@
   text-align: center;
   padding: 100px 20px;
   color: #888;
+}
+.detail-header {
+  margin-bottom: 30px;
 }

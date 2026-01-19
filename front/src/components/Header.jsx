@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Header.css';
 
-const API_URL = 'http://192.168.0.219:5000/api';
+const API_URL = 'http://localhost:5000/api';
 
 function Header() {
   const [user, setUser] = useState(null);

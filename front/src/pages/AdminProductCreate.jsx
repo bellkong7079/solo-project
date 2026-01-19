@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AdminProductForm.css';
+import AdminLayout from '../components/AdminLayout';
 
 function AdminProductCreate() {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ function AdminProductCreate() {
     price: '',
     discount_price: '',
     category_id: '',
-    gender: 'unisex',  // ⭐ 추가
+    gender: 'unisex',
     status: 'active'
   });
 
@@ -140,7 +141,7 @@ function AdminProductCreate() {
       formDataToSend.append('price', formData.price);
       formDataToSend.append('discount_price', formData.discount_price || '');
       formDataToSend.append('category_id', formData.category_id);
-      formDataToSend.append('gender', formData.gender);  // ⭐ 추가
+      formDataToSend.append('gender', formData.gender);
       formDataToSend.append('status', formData.status);
 
       images.forEach(image => {
@@ -168,7 +169,7 @@ function AdminProductCreate() {
   };
 
   return (
-    <div className="admin-product-form">
+    <AdminLayout>
       <div className="form-header">
         <h1>상품 등록</h1>
         <button className="btn-back" onClick={() => navigate('/admin/products')}>
@@ -246,7 +247,6 @@ function AdminProductCreate() {
               </select>
             </div>
 
-            {/* ⭐ 성별 선택 추가 */}
             <div className="form-group">
               <label>성별 *</label>
               <select
@@ -378,7 +378,7 @@ function AdminProductCreate() {
           </button>
         </div>
       </form>
-    </div>
+    </AdminLayout>
   );
 }
 
