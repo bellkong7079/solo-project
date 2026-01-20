@@ -6,7 +6,7 @@ import axios from 'axios';
 import './AdminChatPage.css';
 import AdminLayout from '../components/AdminLayout';
 
-const SOCKET_URL = 'http://localhost:5000';
+const SOCKET_URL = 'http://192.168.0.219:5000';
 
 function AdminChatPage() {
   const navigate = useNavigate();
@@ -17,6 +17,12 @@ function AdminChatPage() {
   const [loading, setLoading] = useState(true);
   const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
+  
+  // 🆕 모달 관련 state
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState(null);
+  const [customerOrders, setCustomerOrders] = useState([]);
+  const [loadingCustomer, setLoadingCustomer] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -25,7 +31,7 @@ function AdminChatPage() {
       navigate('/admin/login');
       return;
     }
-
+    
     // 소켓 연결
     const newSocket = io(SOCKET_URL);
     setSocket(newSocket);
@@ -46,11 +52,9 @@ function AdminChatPage() {
     if (!socket) return;
 
     const handleReceiveMessage = (data) => {
-      // 현재 선택된 방의 메시지면 화면에 추가
       if (selectedRoom && data.room_id === selectedRoom.room_id) {
         setMessages(prev => [...prev, data]);
       }
-      // 채팅방 목록 갱신 (마지막 메시지 업데이트)
       fetchRooms();
     };
 
@@ -100,6 +104,36 @@ function AdminChatPage() {
     } catch (error) {
       console.error('메시지 조회 실패:', error);
     }
+  };
+
+  // 🆕 고객 정보 조회 및 모달 열기
+  const openCustomerModal = async (userId) => {
+    if (!userId) return;
+    
+    setShowCustomerModal(true);
+    setLoadingCustomer(true);
+    
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await axios.get(`${SOCKET_URL}/api/admin/users/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCustomerInfo(response.data.user);
+      setCustomerOrders(response.data.orders || []);
+    } catch (error) {
+      console.error('고객 정보 조회 실패:', error);
+      alert('고객 정보를 불러올 수 없습니다.');
+      setShowCustomerModal(false);
+    } finally {
+      setLoadingCustomer(false);
+    }
+  };
+
+  // 🆕 모달 닫기
+  const closeCustomerModal = () => {
+    setShowCustomerModal(false);
+    setCustomerInfo(null);
+    setCustomerOrders([]);
   };
 
   const handleSend = async () => {
@@ -171,8 +205,28 @@ function AdminChatPage() {
     });
   };
 
-  const getUnreadTotal = () => {
-    return rooms.reduce((sum, room) => sum + (room.unread_count || 0), 0);
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('ko-KR').format(price);
+  };
+
+  const getStatusBadge = (status) => {
+    const statusMap = {
+      pending: { text: '결제대기', class: 'pending' },
+      paid: { text: '결제완료', class: 'paid' },
+      shipping: { text: '배송중', class: 'shipping' },
+      delivered: { text: '배송완료', class: 'delivered' },
+      cancelled: { text: '취소', class: 'cancelled' }
+    };
+    return statusMap[status] || { text: status, class: 'default' };
   };
 
   return (
@@ -244,6 +298,18 @@ function AdminChatPage() {
                   </div>
                 </div>
                 <div className="chat-actions">
+                  {/* 🆕 고객 정보 보기 버튼 */}
+                  <button 
+                    className="btn-customer-info"
+                    onClick={() => openCustomerModal(selectedRoom.user_id)}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="16" x2="12" y2="12"></line>
+                      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    고객 정보
+                  </button>
                   {selectedRoom.status === 'active' && (
                     <button 
                       className="btn-close-chat"
@@ -311,6 +377,163 @@ function AdminChatPage() {
           )}
         </div>
       </div>
+
+      {/* 🆕 고객 정보 모달 */}
+      {showCustomerModal && (
+        <div className="modal-overlay" onClick={closeCustomerModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>고객 정보</h2>
+              <button className="btn-modal-close" onClick={closeCustomerModal}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <div className="modal-body">
+              {loadingCustomer ? (
+                <div className="modal-loading">
+                  <div className="spinner"></div>
+                  <p>로딩 중...</p>
+                </div>
+              ) : customerInfo ? (
+                <>
+                  {/* 고객 기본 정보 */}
+                  <div className="customer-section">
+                    <h3>기본 정보</h3>
+                    <div className="info-grid">
+                      <div className="info-item">
+                        <span className="info-label">이름</span>
+                        <span className="info-value">{customerInfo.name}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">이메일</span>
+                        <span className="info-value">{customerInfo.email}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">연락처</span>
+                        <span className="info-value">{customerInfo.phone || '-'}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">가입일</span>
+                        <span className="info-value">{formatDate(customerInfo.created_at)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 구매 통계 */}
+                  <div className="customer-section">
+                    <h3>구매 통계</h3>
+                    <div className="stats-grid">
+                      <div className="stat-card">
+                        <div className="stat-icon">📦</div>
+                        <div className="stat-info">
+                          <span className="stat-label">총 주문</span>
+                          <span className="stat-value">{customerInfo.order_count}건</span>
+                        </div>
+                      </div>
+                      <div className="stat-card">
+                        <div className="stat-icon">💰</div>
+                        <div className="stat-info">
+                          <span className="stat-label">총 구매액</span>
+                          <span className="stat-value">{formatPrice(customerInfo.total_spent)}원</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 주문 내역 */}
+                  <div className="customer-section">
+                    <h3>주문 내역 ({customerOrders.length}건)</h3>
+                    {customerOrders.length === 0 ? (
+                      <div className="no-data">
+                        <p>주문 내역이 없습니다</p>
+                      </div>
+                    ) : (
+                      <div className="orders-list">
+                        {customerOrders.map(order => {
+                          const statusInfo = getStatusBadge(order.status);
+                          return (
+                            <div key={order.order_id} className="order-card">
+                              <div className="order-card-header">
+                                <span className="order-id">주문 #{order.order_id}</span>
+                                <span className={`status-badge ${statusInfo.class}`}>
+                                  {statusInfo.text}
+                                </span>
+                              </div>
+                              
+                              <div className="order-date-info">
+                                {formatDate(order.created_at)}
+                              </div>
+
+                              {order.items && order.items.length > 0 && (
+                                <div className="order-items-preview">
+                                  {order.items.map((item, idx) => (
+                                    <div key={idx} className="item-row">
+                                      {item.product_image && (
+                                        <img 
+                                          src={`${SOCKET_URL}${item.product_image}`} 
+                                          alt={item.product_name}
+                                          className="item-thumbnail"
+                                        />
+                                      )}
+                                      <div className="item-details">
+                                        <span className="item-name">{item.product_name}</span>
+                                        <span className="item-quantity">수량: {item.quantity}개</span>
+                                      </div>
+                                      <span className="item-price">
+                                        {formatPrice(item.price * item.quantity)}원
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div className="order-card-footer">
+                                <span className="total-label">총 결제금액</span>
+                                <span className="total-price">{formatPrice(order.total_price)}원</span>
+                              </div>
+
+                              <button
+                                className="btn-view-order"
+                                onClick={() => {
+                                  closeCustomerModal();
+                                  navigate(`/admin/orders/${order.order_id}`);
+                                }}
+                              >
+                                주문 상세보기
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 전체 보기 버튼 */}
+                  {customerOrders.length > 0 && (
+                    <button
+                      className="btn-view-all-orders"
+                      onClick={() => {
+                        closeCustomerModal();
+                        navigate(`/admin/users/${customerInfo.user_id}`);
+                      }}
+                    >
+                      회원 상세 페이지로 이동
+                    </button>
+                  )}
+                </>
+              ) : (
+                <div className="no-data">
+                  <p>고객 정보를 불러올 수 없습니다</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }

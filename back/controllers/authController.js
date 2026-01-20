@@ -22,7 +22,7 @@ exports.signup = async (req, res) => {
 
     // 사용자 생성
     const [result] = await db.query(
-      'INSERT INTO users (email, password, name, phone) VALUES (?, ?, ?, ?)',
+      'INSERT INTO users (email, password, name, phone, created_at) VALUES (?, ?, ?, ?, NOW())',
       [email, hashedPassword, name, phone || null]
     );
 
@@ -43,12 +43,13 @@ exports.signup = async (req, res) => {
       user: {
         user_id: result.insertId,
         email,
-        name
+        name,
+        phone: phone || null
       }
     });
 
   } catch (error) {
-    console.error(error);
+    console.error('회원가입 에러:', error);
     res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
 };
@@ -93,12 +94,13 @@ exports.login = async (req, res) => {
       user: {
         user_id: user.user_id,
         email: user.email,
-        name: user.name
+        name: user.name,
+        phone: user.phone
       }
     });
 
   } catch (error) {
-    console.error(error);
+    console.error('로그인 에러:', error);
     res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
 };
@@ -118,7 +120,108 @@ exports.getMe = async (req, res) => {
     res.json({ user: users[0] });
 
   } catch (error) {
-    console.error(error);
+    console.error('내 정보 조회 에러:', error);
+    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+  }
+};
+
+// 🆕 회원정보 수정
+exports.updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.user_id;
+    const { name, phone, currentPassword, newPassword } = req.body;
+
+    // 현재 사용자 정보 조회
+    const [users] = await db.query('SELECT * FROM users WHERE user_id = ?', [userId]);
+    
+    if (users.length === 0) {
+      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+    }
+
+    const user = users[0];
+
+    // 비밀번호 변경을 원하는 경우
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ message: '현재 비밀번호를 입력해주세요.' });
+      }
+
+      // 현재 비밀번호 확인
+      const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: '현재 비밀번호가 틀렸습니다.' });
+      }
+
+      // 새 비밀번호 길이 확인
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: '새 비밀번호는 6자 이상이어야 합니다.' });
+      }
+
+      // 새 비밀번호 해시
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      
+      // 비밀번호 포함 업데이트
+      await db.query(
+        'UPDATE users SET name = ?, phone = ?, password = ?, updated_at = NOW() WHERE user_id = ?',
+        [name || user.name, phone || user.phone, hashedPassword, userId]
+      );
+    } else {
+      // 비밀번호 변경 없이 이름/전화번호만 수정
+      await db.query(
+        'UPDATE users SET name = ?, phone = ?, updated_at = NOW() WHERE user_id = ?',
+        [name || user.name, phone || user.phone, userId]
+      );
+    }
+
+    // 업데이트된 사용자 정보 조회
+    const [updatedUsers] = await db.query(
+      'SELECT user_id, email, name, phone, created_at FROM users WHERE user_id = ?',
+      [userId]
+    );
+
+    res.json({ 
+      message: '회원정보가 수정되었습니다.',
+      user: updatedUsers[0]
+    });
+
+  } catch (error) {
+    console.error('회원정보 수정 에러:', error);
+    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+  }
+};
+
+// 🆕 회원 탈퇴
+exports.deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.user_id;
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ message: '비밀번호를 입력해주세요.' });
+    }
+
+    // 현재 사용자 정보 조회
+    const [users] = await db.query('SELECT * FROM users WHERE user_id = ?', [userId]);
+    
+    if (users.length === 0) {
+      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+    }
+
+    const user = users[0];
+
+    // 비밀번호 확인
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: '비밀번호가 틀렸습니다.' });
+    }
+
+    // 사용자 삭제
+    await db.query('DELETE FROM users WHERE user_id = ?', [userId]);
+
+    res.json({ message: '회원 탈퇴가 완료되었습니다.' });
+
+  } catch (error) {
+    console.error('회원 탈퇴 에러:', error);
     res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
 };

@@ -46,7 +46,7 @@ function AdminProductCreate() {
   const fetchCategories = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('http://localhost:5000/api/admin/categories', {
+      const response = await axios.get('http://192.168.0.219:5000/api/admin/categories', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCategories(response.data.categories);
@@ -150,7 +150,7 @@ function AdminProductCreate() {
 
       formDataToSend.append('options', JSON.stringify(options));
 
-      await axios.post('http://localhost:5000/api/admin/products', formDataToSend, {
+      await axios.post('http://192.168.0.219:5000/api/admin/products', formDataToSend, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

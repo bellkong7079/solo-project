@@ -8,7 +8,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 
 // ==================== 인증 관련 ====================
 
-// ⭐ 관리자 로그인
+// 관리자 로그인
 router.post('/login', async (req, res) => {
   try {
     console.log('===== 관리자 로그인 시도 =====');
@@ -69,7 +69,7 @@ router.post('/login', async (req, res) => {
 
 // ==================== 상품 관리 ====================
 
-// ⭐ 상품 목록 조회 (관리자용)
+// 상품 목록 조회 (관리자용)
 router.get('/products', authMiddleware, async (req, res) => {
   try {
     const [products] = await db.query(`
@@ -77,8 +77,8 @@ router.get('/products', authMiddleware, async (req, res) => {
         p.*,
         c.name as category_name,
         (SELECT image_url FROM product_images 
-         WHERE product_id = p.product_id AND is_thumbnail = 1 
-         LIMIT 1) as thumbnail,
+        WHERE product_id = p.product_id AND is_thumbnail = 1 
+        LIMIT 1) as thumbnail,
         (SELECT COUNT(*) FROM product_options WHERE product_id = p.product_id) as option_count
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.category_id
@@ -92,7 +92,7 @@ router.get('/products', authMiddleware, async (req, res) => {
   }
 });
 
-// ⭐ 상품 등록 (관리자용)
+// 상품 등록 (관리자용)
 router.post('/products', authMiddleware, upload.array('images', 5), async (req, res) => {
   const connection = await db.getConnection();
   
@@ -117,7 +117,7 @@ router.post('/products', authMiddleware, upload.array('images', 5), async (req, 
     // 상품 등록
     const [productResult] = await connection.query(
       `INSERT INTO products (name, description, price, discount_price, category_id, gender, status, created_at) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
       [name, description, price, discount_price || null, category_id, gender, status]
     );
     
@@ -139,7 +139,7 @@ router.post('/products', authMiddleware, upload.array('images', 5), async (req, 
         
         await connection.query(
           `INSERT INTO product_images (product_id, image_url, is_thumbnail, display_order) 
-           VALUES (?, ?, ?, ?)`,
+          VALUES (?, ?, ?, ?)`,
           [productId, imageUrl, isThumbnail, i + 1]
         );
       }
@@ -150,7 +150,7 @@ router.post('/products', authMiddleware, upload.array('images', 5), async (req, 
       for (const option of options) {
         await connection.query(
           `INSERT INTO product_options (product_id, option_name, option_value, stock, additional_price) 
-           VALUES (?, ?, ?, ?, ?)`,
+          VALUES (?, ?, ?, ?, ?)`,
           [productId, option.option_name, option.option_value, option.stock, option.additional_price]
         );
       }
@@ -175,7 +175,7 @@ router.post('/products', authMiddleware, upload.array('images', 5), async (req, 
   }
 });
 
-// ⭐ 상품 상세 조회 (관리자용)
+// 상품 상세 조회 (관리자용)
 router.get('/products/:id', authMiddleware, async (req, res) => {
   try {
     const productId = req.params.id;
@@ -221,7 +221,7 @@ router.get('/products/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// ⭐ 상품 삭제 (관리자용)
+// 상품 삭제 (관리자용)
 router.delete('/products/:id', authMiddleware, async (req, res) => {
   const connection = await db.getConnection();
   
@@ -253,7 +253,7 @@ router.delete('/products/:id', authMiddleware, async (req, res) => {
 
 // ==================== 카테고리 관리 ====================
 
-// ⭐ 카테고리 목록 조회
+// 카테고리 목록 조회
 router.get('/categories', authMiddleware, async (req, res) => {
   try {
     const [categories] = await db.query(`
@@ -273,7 +273,7 @@ router.get('/categories', authMiddleware, async (req, res) => {
   }
 });
 
-// ⭐ 카테고리 생성
+// 카테고리 생성
 router.post('/categories', authMiddleware, async (req, res) => {
   try {
     const { name, description } = req.body;
@@ -295,7 +295,7 @@ router.post('/categories', authMiddleware, async (req, res) => {
 
 // ==================== 주문 관리 ====================
 
-// ⭐ 주문 목록 조회
+// 주문 목록 조회
 router.get('/orders', authMiddleware, async (req, res) => {
   try {
     console.log('===== 주문 목록 조회 =====');
@@ -322,7 +322,7 @@ router.get('/orders', authMiddleware, async (req, res) => {
   }
 });
 
-// ⭐ 주문 상세 조회
+// 주문 상세 조회
 router.get('/orders/:id', authMiddleware, async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -346,8 +346,8 @@ router.get('/orders/:id', authMiddleware, async (req, res) => {
         oi.*,
         p.name as product_name,
         (SELECT image_url FROM product_images 
-         WHERE product_id = p.product_id AND is_thumbnail = 1 
-         LIMIT 1) as thumbnail
+        WHERE product_id = p.product_id AND is_thumbnail = 1 
+        LIMIT 1) as thumbnail
       FROM order_items oi
       LEFT JOIN products p ON oi.product_id = p.product_id
       WHERE oi.order_id = ?
@@ -365,11 +365,12 @@ router.get('/orders/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// ⭐ 주문 상태 변경
+// 주문 상태 변경
 router.put('/orders/:id/status', authMiddleware, async (req, res) => {
   try {
     const orderId = req.params.id;
     const { status } = req.body;
+    
     await db.query(
       'UPDATE orders SET status = ? WHERE order_id = ?',
       [status, orderId]
@@ -377,15 +378,14 @@ router.put('/orders/:id/status', authMiddleware, async (req, res) => {
     
     res.json({ message: '주문 상태가 변경되었습니다.' });
   } catch (error) {
-    console.log("hello")
     console.error('주문 상태 변경 실패:', error);
     res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
 });
 
-/// ==================== 대시보드 ====================
+// ==================== 대시보드 ====================
 
-// ⭐ 대시보드 통계
+// 대시보드 통계
 router.get('/dashboard/stats', authMiddleware, async (req, res) => {
   try {
     console.log('===== 대시보드 통계 요청 =====');
@@ -432,7 +432,7 @@ router.get('/dashboard/stats', authMiddleware, async (req, res) => {
       console.log('⚠️ users 조회 에러:', err.message);
     }
     
-    // 4. 총 매출 (⭐ total_price 사용)
+    // 4. 총 매출
     try {
       const [totalRevenue] = await db.query(`
         SELECT COALESCE(SUM(total_price), 0) as total
@@ -468,4 +468,127 @@ router.get('/dashboard/stats', authMiddleware, async (req, res) => {
     });
   }
 });
+
+// ==================== 회원 관리 ====================
+
+// 모든 회원 목록 조회 (구매 통계 포함)
+router.get('/users', authMiddleware, async (req, res) => {
+  try {
+    const [users] = await db.query(`
+      SELECT 
+        u.user_id,
+        u.name,
+        u.email,
+        u.phone,
+        u.created_at,
+        COUNT(DISTINCT o.order_id) as order_count,
+        COALESCE(SUM(o.total_price), 0) as total_spent,
+        MAX(o.created_at) as last_order_date
+      FROM users u
+      LEFT JOIN orders o ON u.user_id = o.user_id
+      GROUP BY u.user_id
+      ORDER BY total_spent DESC
+    `);
+
+    res.json({ users });
+  } catch (error) {
+    console.error('회원 목록 조회 실패:', error);
+    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+  }
+});
+
+// 특정 회원의 상세 정보 및 주문 내역
+router.get('/users/:userId', authMiddleware, async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // 회원 기본 정보
+    const [users] = await db.query(`
+      SELECT 
+        u.*,
+        COUNT(DISTINCT o.order_id) as order_count,
+        COALESCE(SUM(o.total_price), 0) as total_spent
+      FROM users u
+      LEFT JOIN orders o ON u.user_id = o.user_id
+      WHERE u.user_id = ?
+      GROUP BY u.user_id
+    `, [userId]);
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: '회원을 찾을 수 없습니다.' });
+    }
+
+    const user = users[0];
+
+    // 회원의 주문 목록
+    const [orders] = await db.query(`
+      SELECT 
+        o.*,
+        COUNT(oi.order_item_id) as item_count
+      FROM orders o
+      LEFT JOIN order_items oi ON o.order_id = oi.order_id
+      WHERE o.user_id = ?
+      GROUP BY o.order_id
+      ORDER BY o.created_at DESC
+    `, [userId]);
+
+    // 각 주문의 상품 상세 정보
+    for (let order of orders) {
+      const [items] = await db.query(`
+        SELECT 
+          oi.*,
+          p.name as product_name,
+          p.price as product_price,
+          (SELECT image_url FROM product_images 
+          WHERE product_id = p.product_id AND is_thumbnail = 1 
+          LIMIT 1) as product_image
+        FROM order_items oi
+        JOIN products p ON oi.product_id = p.product_id
+        WHERE oi.order_id = ?
+      `, [order.order_id]);
+      
+      order.items = items;
+    }
+
+    res.json({ user, orders });
+  } catch (error) {
+    console.error('회원 상세 조회 실패:', error);
+    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+  }
+});
+
+// 회원별 구매 상품 통계
+router.get('/users/:userId/products', authMiddleware, async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const [products] = await db.query(`
+      SELECT 
+        p.product_id,
+        p.name,
+        c.name as category_name,
+        COUNT(oi.order_item_id) as purchase_count,
+        SUM(oi.quantity) as total_quantity,
+        SUM(oi.price * oi.quantity) as total_amount,
+        MAX(o.created_at) as last_purchase_date,
+        (SELECT image_url FROM product_images 
+        WHERE product_id = p.product_id AND is_thumbnail = 1 
+        LIMIT 1) as product_image
+      FROM order_items oi
+      JOIN orders o ON oi.order_id = o.order_id
+      JOIN products p ON oi.product_id = p.product_id
+      LEFT JOIN categories c ON p.category_id = c.category_id
+      WHERE o.user_id = ?
+      GROUP BY p.product_id
+      ORDER BY purchase_count DESC, total_amount DESC
+    `, [userId]);
+
+    res.json({ products });
+  } catch (error) {
+    console.error('구매 상품 통계 조회 실패:', error);
+    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+  }
+});
+
+
 module.exports = router;

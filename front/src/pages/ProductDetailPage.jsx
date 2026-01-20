@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../utils/axios';
 import './ProductDetailPage.css';
+import { useCart } from '../contexts/CartContext'; // ✅ 이미 import 되어 있음
 
 function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCart } = useCart(); // ✅ Context에서 addToCart 가져오기
   
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -36,6 +38,7 @@ function ProductDetailPage() {
     }
   };
 
+  // 🆕 Context의 addToCart 사용으로 수정
   const handleAddToCart = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -49,21 +52,21 @@ function ProductDetailPage() {
       return;
     }
 
-    try {
-      await axios.post('/cart', {
-        product_id: product.product_id,
-        option_id: selectedOption,
-        quantity: quantity
-      });
-
+    // 🆕 Context의 addToCart 함수 사용
+    const result = await addToCart(product.product_id, selectedOption, quantity);
+    
+    if (result.success) {
+      // 장바구니 추가 성공 - 헤더의 숫자가 자동으로 업데이트됨!
       if (window.confirm('장바구니에 추가되었습니다. 장바구니로 이동하시겠습니까?')) {
         navigate('/cart');
       }
-    } catch (error) {
-      alert(error.response?.data?.message || '장바구니 추가에 실패했습니다.');
+    } else {
+      // 에러 처리
+      alert(result.message);
     }
   };
 
+  // 🆕 바로 구매도 Context 사용
   const handleBuyNow = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -77,15 +80,14 @@ function ProductDetailPage() {
       return;
     }
 
-    try {
-      await axios.post('/cart', {
-        product_id: product.product_id,
-        option_id: selectedOption,
-        quantity: quantity
-      });
+    // 🆕 Context의 addToCart 함수 사용
+    const result = await addToCart(product.product_id, selectedOption, quantity);
+    
+    if (result.success) {
+      // 바로 결제 페이지로 이동
       navigate('/checkout');
-    } catch (error) {
-      alert(error.response?.data?.message || '구매에 실패했습니다.');
+    } else {
+      alert(result.message);
     }
   };
 
@@ -114,11 +116,11 @@ function ProductDetailPage() {
         ...img,
         image_url: img.image_url.startsWith('http') 
           ? img.image_url 
-          : `http://localhost:5000${img.image_url}`
+          : `http://192.168.0.219:5000${img.image_url}`
       }))
     : [{ 
         image_url: product.thumbnail 
-          ? `http://localhost:5000${product.thumbnail}`
+          ? `http://192.168.0.219:5000${product.thumbnail}`
           : 'https://via.placeholder.com/600' 
       }];
 

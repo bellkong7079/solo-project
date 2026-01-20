@@ -102,7 +102,7 @@ function ProductListPage() {
                 <div className="product-image">
                   <img 
                     src={product.thumbnail 
-                    ? `http://localhost:5000${product.thumbnail}` 
+                    ? `http://192.168.0.219:5000${product.thumbnail}` 
                     : 'https://via.placeholder.com/400'
                   } 
                     alt={product.name} 

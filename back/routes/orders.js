@@ -15,4 +15,8 @@ router.get('/', orderController.getMyOrders);
 // 주문 상세 조회
 router.get('/:orderId', orderController.getOrderDetail);
 
+// 🆕 주문 취소 (authUser 중복 제거)
+router.delete('/:orderId', orderController.cancelOrder);
+
+
 module.exports = router;

@@ -11,6 +11,7 @@ const SignupPage = () => {
     email: '',
     password: '',
     passwordConfirm: '',
+    phone: '', // 🆕 전화번호 추가
   });
 
   const [error, setError] = useState('');
@@ -18,6 +19,23 @@ const SignupPage = () => {
 
   const onChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  // 🆕 전화번호 자동 포맷팅 (010-1234-5678)
+  const handlePhoneChange = (e) => {
+    let value = e.target.value.replace(/[^0-9]/g, ''); // 숫자만 추출
+    
+    if (value.length <= 3) {
+      value = value;
+    } else if (value.length <= 7) {
+      value = value.slice(0, 3) + '-' + value.slice(3);
+    } else if (value.length <= 11) {
+      value = value.slice(0, 3) + '-' + value.slice(3, 7) + '-' + value.slice(7);
+    } else {
+      value = value.slice(0, 3) + '-' + value.slice(3, 7) + '-' + value.slice(7, 11);
+    }
+    
+    setForm((prev) => ({ ...prev, phone: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -34,23 +52,28 @@ const SignupPage = () => {
       return;
     }
 
+    // 🆕 전화번호 유효성 검사 (선택사항)
+    if (form.phone && !/^010-\d{4}-\d{4}$/.test(form.phone)) {
+      setError('올바른 전화번호 형식이 아닙니다. (예: 010-1234-5678)');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // ✅ 백엔드 회원가입 엔드포인트 (필요하면 여기만 수정)
-      const res = await axios.post('http://localhost:5000/api/auth/register', {
+      const res = await axios.post('http://192.168.0.219:5000/api/auth/register', {
         name: form.name,
         email: form.email,
         password: form.password,
+        phone: form.phone, // 🆕 전화번호 전송
       });
 
-      // (선택) 서버가 토큰을 주면 저장
       if (res.data?.token) {
         localStorage.setItem('token', res.data.token);
       }
 
       alert('회원가입 완료!');
-      navigate('/login'); // or '/' 원하는 곳으로
+      navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || '회원가입에 실패했습니다.');
     } finally {
@@ -89,6 +112,22 @@ const SignupPage = () => {
               placeholder="email@example.com"
               required
             />
+          </div>
+
+          {/* 🆕 전화번호 입력란 */}
+          <div className="form-group">
+            <label>전화번호</label>
+            <input
+              type="tel"
+              name="phone"
+              value={form.phone}
+              onChange={handlePhoneChange}
+              placeholder="010-1234-5678"
+              maxLength="13"
+            />
+            <small style={{ color: '#6b7280', fontSize: '12px', marginTop: '4px', display: 'block' }}>
+              선택사항 (자동으로 하이픈이 추가됩니다)
+            </small>
           </div>
 
           <div className="form-group">

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // 🆕 Link 추가
 import axios from 'axios';
 import './AuthPages.css';
 
@@ -15,7 +15,7 @@ const AdminLoginPage = () => {
 
     try {
       const res = await axios.post(
-        'http://localhost:5000/api/admin/login',
+        'http://192.168.0.219:5000/api/admin/login',
         { email, password }
       );
 
@@ -36,6 +36,13 @@ const AdminLoginPage = () => {
   return (
     <div className="auth-page admin-page">
       <div className="auth-container">
+        {/* 🆕 홈페이지로 돌아가기 버튼 */}
+        <Link to="/" className="back-to-home">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          홈페이지로 돌아가기
+        </Link>
 
         <div className="admin-badge">
           ADMIN

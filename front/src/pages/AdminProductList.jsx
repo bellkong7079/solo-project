@@ -22,7 +22,7 @@ function AdminProductList() {
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('http://localhost:5000/api/admin/products', {
+      const response = await axios.get('http://192.168.0.219:5000/api/admin/products', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProducts(response.data.products);
@@ -41,7 +41,7 @@ function AdminProductList() {
 
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:5000/api/admin/products/${productId}`, {
+      await axios.delete(`http://192.168.0.219:5000/api/admin/products/${productId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('상품이 삭제되었습니다.');
@@ -113,7 +113,7 @@ function AdminProductList() {
                     <div className="product-thumbnail">
                       <img 
                         src={product.thumbnail 
-                          ? `http://localhost:5000${product.thumbnail}` 
+                          ? `http://192.168.0.219:5000${product.thumbnail}` 
                           : 'https://via.placeholder.com/400'
                         } 
                         alt={product.name} 

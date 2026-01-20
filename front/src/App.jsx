@@ -1,9 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { CartProvider } from './contexts/CartContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import ProfilePage from './pages/ProfilePage';
+import MyPage from './pages/MyPage'; // 🆕 추가
+import OrderDetailPage from './pages/OrderDetailPage'; // 🆕 추가
 import AdminLoginPage from './pages/AdminLoginPage';
 import CartPage from './pages/CartPage';
 import ProductDetailPage from './pages/ProductDetailPage';
@@ -21,6 +25,8 @@ import ShippingGuide from './pages/ShippingGuide';
 import ChatWidget from './components/ChatWidget';
 import AdminChatPage from './pages/AdminChatPage';
 import AdminCategoryPage from './pages/AdminCategoryPage';
+import AdminUserList from './pages/AdminUserList';
+import AdminUserDetail from './pages/AdminUserDetail';
 
 
 function AppContent() {
@@ -39,6 +45,9 @@ function AppContent() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/mypage" element={<MyPage />} /> {/* 🆕 추가 */}
+        <Route path="/orders/:orderId" element={<OrderDetailPage />} /> {/* 🆕 추가 */}
         <Route path="/cart" element={<CartPage />} />
         <Route path="/products" element={<ProductListPage />} />
         <Route path="/products/:id" element={<ProductDetailPage />} />
@@ -57,6 +66,8 @@ function AppContent() {
         <Route path="/admin/orders/:orderId" element={<AdminOrderDetail />} />
         <Route path="/admin/chat" element={<AdminChatPage />} />
         <Route path="/admin/categories" element={<AdminCategoryPage />} />
+        <Route path="/admin/users" element={<AdminUserList />} />
+        <Route path="/admin/users/:userId" element={<AdminUserDetail />} />
       </Routes>
       
       {/* 관리자 페이지가 아닐 때만 Footer 표시 */}
@@ -71,7 +82,9 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <AppContent />
+      <CartProvider>
+        <AppContent />
+      </CartProvider>
     </Router>
   );
 }

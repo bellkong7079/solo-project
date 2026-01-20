@@ -29,7 +29,7 @@ function AdminDashboard() {
     try {
       console.log('대시보드 통계 요청 중...');
       
-      const response = await axios.get('http://localhost:5000/api/admin/dashboard/stats', {
+      const response = await axios.get('http://192.168.0.219:5000/api/admin/dashboard/stats', {
         headers: { Authorization: `Bearer ${token}` }
       });
       

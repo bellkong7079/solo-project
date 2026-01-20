@@ -23,7 +23,7 @@ function AdminOrderDetail() {
   const fetchOrderDetail = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get(`http://localhost:5000/api/admin/orders/${orderId}`, {
+      const response = await axios.get(`http://192.168.0.219:5000/api/admin/orders/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrder(response.data.order);

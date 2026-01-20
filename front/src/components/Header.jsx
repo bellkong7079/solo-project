@@ -1,20 +1,26 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useCart } from '../contexts/CartContext';
 import './Header.css';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'http://192.168.0.219:5000/api';
 
 function Header() {
   const [user, setUser] = useState(null);
   const [categories, setCategories] = useState([]);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [showUserDropdown, setShowUserDropdown] = useState(false); // 🆕 유저 드롭다운 메뉴
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  const { cartCount, clearCart } = useCart();
 
   useEffect(() => {
-    // 로그인 상태 확인
     checkLoginStatus();
-    // 카테고리 불러오기
+  }, [location]);
+
+  useEffect(() => {
     fetchCategories();
   }, []);
 
@@ -23,18 +29,17 @@ function Header() {
     const adminToken = localStorage.getItem('adminToken');
     const userData = localStorage.getItem('user');
     
-    // 일반 사용자 토큰이 있으면
     if (token && userData) {
       try {
-        setUser(JSON.parse(userData));
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
       } catch (error) {
         console.error('사용자 정보 파싱 실패:', error);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        setUser(null);
       }
-    }
-    // 관리자 토큰만 있으면
-    else if (adminToken) {
+    } else if (adminToken) {
       try {
         const payload = JSON.parse(atob(adminToken.split('.')[1]));
         setUser({ 
@@ -44,7 +49,10 @@ function Header() {
         });
       } catch (error) {
         console.error('관리자 토큰 파싱 실패:', error);
+        setUser(null);
       }
+    } else {
+      setUser(null);
     }
   };
 
@@ -59,13 +67,12 @@ function Header() {
 
   const handleLogout = () => {
     if (window.confirm('로그아웃 하시겠습니까?')) {
-      // 일반 사용자 토큰 삭제
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      // 관리자 토큰도 삭제
       localStorage.removeItem('adminToken');
       
       setUser(null);
+      clearCart();
       alert('로그아웃 되었습니다.');
       navigate('/');
     }
@@ -84,7 +91,7 @@ function Header() {
       <div className="header-content">
         {/* 로고 */}
         <Link to="/" className="logo">
-          jongbin'S 服屋
+       KISETSU
         </Link>
 
         {/* 네비게이션 - 동적 카테고리 */}
@@ -103,7 +110,6 @@ function Header() {
                 {category.name}
               </Link>
               
-              {/* 하위 카테고리(소분류) 드롭다운 */}
               {category.children && category.children.length > 0 && (
                 <div className={`dropdown-menu ${activeDropdown === category.category_id ? 'show' : ''}`}>
                   {category.children.map(subCategory => (
@@ -131,18 +137,65 @@ function Header() {
           </button>
 
           {user ? (
-            <div className="user-menu">
-              <span className="user-name">
-                {user.isAdmin ? '👑 ' : ''}{user.name}님
-              </span>
-              {user.isAdmin && (
-                <Link to="/admin/dashboard" className="admin-link-btn">
-                  관리자
-                </Link>
-              )}
-              <button onClick={handleLogout} className="header-logout-btn">
-                로그아웃
+            <div className="user-menu-wrapper">
+              {/* 🆕 유저 메뉴 버튼 */}
+              <button 
+                className="user-menu-btn"
+                onClick={() => setShowUserDropdown(!showUserDropdown)}
+                onBlur={() => setTimeout(() => setShowUserDropdown(false), 200)}
+              >
+                <span className="user-name">
+                  {user.isAdmin ? '👑 ' : ''}{user.name}님
+                </span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
               </button>
+
+              {/* 🆕 드롭다운 메뉴 */}
+              {showUserDropdown && (
+                <div className="user-dropdown">
+                  {!user.isAdmin && (
+                    <>
+                      <Link to="/mypage" className="dropdown-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="3" width="7" height="7"></rect>
+                          <rect x="14" y="3" width="7" height="7"></rect>
+                          <rect x="14" y="14" width="7" height="7"></rect>
+                          <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        마이페이지
+                      </Link>
+                      <Link to="/profile" className="dropdown-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        회원정보 수정
+                      </Link>
+                    </>
+                  )}
+                  {user.isAdmin && (
+                    <Link to="/admin/dashboard" className="dropdown-item">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                      </svg>
+                      관리자 페이지
+                    </Link>
+                  )}
+                  <button onClick={handleLogout} className="dropdown-item logout">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                      <polyline points="16 17 21 12 16 7"></polyline>
+                      <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    로그아웃
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <Link to="/login" className="icon-btn">
@@ -159,7 +212,7 @@ function Header() {
               <circle cx="20" cy="21" r="1"></circle>
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
             </svg>
-            <span className="cart-count">0</span>
+            {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
           </Link>
         </div>
       </div>

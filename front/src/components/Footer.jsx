@@ -6,10 +6,10 @@ function Footer() {
       <div className="container">
         <div className="footer-content">
           <div className="footer-section">
-            <h3 className="footer-title">きれいな服</h3>
+            <h3 className="footer-title">季節をまとう</h3>
             <p className="footer-desc">
-              미니멀한 디자인과 퀄리티 있는 제품으로<br />
-              당신의 라이프스타일을 완성합니다.
+              계절은..<br />
+              당신을 완벽하게 만든다.
             </p>
           </div>
 
@@ -27,9 +27,7 @@ function Footer() {
           <div className="footer-section">
             <h4 className="footer-subtitle">Help</h4>
             <ul className="footer-links">
-              <li><a href="/customer-service">고객센터</a></li>
               <li><a href="/shipping">배송 안내</a></li>
-              <li><a href="/returns">반품/교환</a></li>
               <li><a href="/faq">FAQ</a></li>
             </ul>
           </div>
@@ -53,7 +51,10 @@ function Footer() {
 
         <div className="footer-bottom">
           <p>&copy; 2026 MINIMAL. All rights reserved.</p>
-          <p>Made by 윤종빈</p>
+          <p onClick={() => window.location.href = "https://www.instagram.com/jongbin_97/"} 
+          style={{ cursor: "pointer" }}>
+          Made by 윤종빈
+          </p>
         </div>
       </div>
     </footer>

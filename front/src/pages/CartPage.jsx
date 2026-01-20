@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from '../utils/axios';
+import { useCart } from '../contexts/CartContext'; // 🆕 추가
 import './CartPage.css';
 
 function CartPage() {
@@ -8,6 +9,8 @@ function CartPage() {
   const [totalPrice, setTotalPrice] = useState(0);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  
+  const { fetchCartCount, updateCartItem, removeFromCart } = useCart(); // 🆕 Context 함수 가져오기
 
   useEffect(() => {
     fetchCart();
@@ -39,10 +42,16 @@ function CartPage() {
     if (newQuantity < 1) return;
 
     try {
-      await axios.put(`/cart/${cartId}`, { quantity: newQuantity });
-      fetchCart(); // 장바구니 새로고침
+      // 🆕 Context의 updateCartItem 사용
+      const result = await updateCartItem(cartId, newQuantity);
+      
+      if (result.success) {
+        fetchCart(); // 장바구니 새로고침
+      } else {
+        alert(result.message);
+      }
     } catch (error) {
-      alert(error.response?.data?.message || '수량 변경에 실패했습니다.');
+      alert('수량 변경에 실패했습니다.');
     }
   };
 
@@ -50,8 +59,14 @@ function CartPage() {
     if (!window.confirm('장바구니에서 삭제하시겠습니까?')) return;
 
     try {
-      await axios.delete(`/cart/${cartId}`);
-      fetchCart();
+      // 🆕 Context의 removeFromCart 사용
+      const result = await removeFromCart(cartId);
+      
+      if (result.success) {
+        fetchCart(); // 장바구니 새로고침
+      } else {
+        alert(result.message);
+      }
     } catch (error) {
       alert('삭제에 실패했습니다.');
     }
@@ -96,7 +111,7 @@ function CartPage() {
                 <Link to={`/products/${item.product_id}`} className="item-image">
                   <img 
                     src={item.thumbnail 
-                      ? `http://localhost:5000${item.thumbnail}` 
+                      ? `http://192.168.0.219:5000${item.thumbnail}` 
                       : 'https://via.placeholder.com/120'
                     } 
                     alt={item.name} 

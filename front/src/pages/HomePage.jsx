@@ -28,10 +28,10 @@ function HomePage() {
       {/* 히어로 섹션 */}
       <section className="hero">
         <div className="hero-content">
-          <h1 className="hero-title">素敵な FASHION</h1>
-          <p className="hero-subtitle">Simple, Clean, Timeless</p>
+          <h1 className="hero-title">계절</h1>
+          <p className="hero-subtitle">고요하고, 부드러운, 일상</p>
           <Link to="/products" className="btn btn-primary">
-            Shop Now
+            전체상품
           </Link>
         </div>
       </section>
@@ -51,7 +51,7 @@ function HomePage() {
             </Link>
             <Link to="/products?gender=female" className="category-card">
               <img 
-                src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600" 
+                src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
                 alt="Women's Collection" 
               />
               <div className="category-overlay">
@@ -85,7 +85,7 @@ function HomePage() {
                   <div className="product-image">
                     <img 
                       src={product.thumbnail 
-                        ? `http://localhost:5000${product.thumbnail}`
+                        ? `http://192.168.0.219:5000${product.thumbnail}`
                         : 'https://via.placeholder.com/400'
                       } 
                       alt={product.name} 

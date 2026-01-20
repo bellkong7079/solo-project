@@ -5,7 +5,7 @@ import axios from 'axios';
 import './AdminCategoryPage.css';
 import AdminLayout from '../components/AdminLayout';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'http://192.168.0.219:5000/api';
 
 function AdminCategoryPage() {
   const navigate = useNavigate();

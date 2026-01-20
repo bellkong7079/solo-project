@@ -46,7 +46,7 @@ function AdminProductForm() {
   const fetchCategories = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('http://localhost:5000/api/admin/categories', {
+      const response = await axios.get('http://192.168.0.219:5000/api/admin/categories', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCategories(response.data.categories);
@@ -58,7 +58,7 @@ function AdminProductForm() {
   const fetchProductData = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get(`http://localhost:5000/api/products/${id}`, {
+      const response = await axios.get(`http://192.168.0.219:5000/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -193,7 +193,7 @@ function AdminProductForm() {
       formDataToSend.append('existing_images', JSON.stringify(existingImages.map(img => img.image_id)));
       formDataToSend.append('options', JSON.stringify(options));
 
-      await axios.put(`http://localhost:5000/api/admin/products/${id}`, formDataToSend, {
+      await axios.put(`http://192.168.0.219:5000/api/admin/products/${id}`, formDataToSend, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -335,7 +335,7 @@ function AdminProductForm() {
               <div className="image-preview-container">
                 {existingImages.map((img, index) => (
                   <div key={img.image_id} className="image-preview">
-                    <img src={`http://localhost:5000${img.image_url}`} alt={`기존 이미지 ${index + 1}`} />
+                    <img src={`http://192.168.0.219:5000${img.image_url}`} alt={`기존 이미지 ${index + 1}`} />
                     <span className="preview-label">
                       {img.is_thumbnail ? '대표 이미지' : `이미지 ${index + 1}`}
                     </span>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useCart } from '../contexts/CartContext'; // 🆕 추가
 import './AuthPages.css';
 
 function LoginPage() {
@@ -11,6 +12,7 @@ function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { fetchCartCount } = useCart(); // 🆕 장바구니 새로고침 함수
 
   const handleChange = (e) => {
     setFormData({
@@ -26,7 +28,7 @@ function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
+      const response = await axios.post('http://192.168.0.219:5000/api/auth/login', formData);
       
       // 토큰 저장
       localStorage.setItem('token', response.data.token);
@@ -34,8 +36,11 @@ function LoginPage() {
       
       console.log('로그인 성공:', response.data);
       
-      // 메인 페이지로 강제 이동
-      window.location.href = '/';
+      // 🆕 로그인 성공 후 장바구니 개수 새로고침
+      await fetchCartCount();
+      
+      // 메인 페이지로 이동
+      navigate('/');
       
     } catch (err) {
       setError(err.response?.data?.message || '로그인에 실패했습니다.');
