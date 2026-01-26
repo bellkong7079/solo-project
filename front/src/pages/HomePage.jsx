@@ -4,8 +4,83 @@ import axios from '../utils/axios';
 import './HomePage.css';
 
 function HomePage() {
+  const [showSeasonIntro, setShowSeasonIntro] = useState(true); // 🆕 인트로 상태
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // 🆕 현재 계절 가져오기
+  const getCurrentSeason = () => {
+    const month = new Date().getMonth() + 1; // 1-12
+    
+    if (month >= 3 && month <= 5) {
+      return { 
+        name: 'spring',
+        text: '봄', 
+        emoji: '🌸',
+        colors: {
+          primary: '#FFB6C1',      // 파스텔 핑크
+          secondary: '#90EE90',    // 연한 초록
+          gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+          introBg: 'linear-gradient(135deg, #FFB6C1 0%, #FFA07A 100%)'
+        },
+        animation: 'cherry-blossoms' // 벚꽃 애니메이션
+      };
+    }
+    
+    if (month >= 6 && month <= 8) {
+      return { 
+        name: 'summer',
+        text: '여름', 
+        emoji: '☀️',
+        colors: {
+          primary: '#87CEEB',      // 하늘색
+          secondary: '#FFD700',    // 밝은 노랑
+          gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+          introBg: 'linear-gradient(135deg, #56CCF2 0%, #2F80ED 100%)'
+        },
+        animation: 'waves' // 파도 애니메이션
+      };
+    }
+    
+    if (month >= 9 && month <= 11) {
+      return { 
+        name: 'autumn',
+        text: '가을', 
+        emoji: '🍂',
+        colors: {
+          primary: '#D2691E',      // 오렌지 브라운
+          secondary: '#800000',    // 버건디
+          gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+          introBg: 'linear-gradient(135deg, #D2691E 0%, #8B4513 100%)'
+        },
+        animation: 'falling-leaves' // 낙엽 애니메이션
+      };
+    }
+    
+    return { 
+      name: 'winter',
+      text: '겨울', 
+      emoji: '❄',
+      colors: {
+        primary: '#ADD8E6',      // 아이스 블루
+        secondary: '#C0C0C0',    // 실버
+        gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+        introBg: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
+      },
+      animation: 'snowfall' // 눈 내리는 애니메이션
+    };
+  };
+
+  const season = getCurrentSeason();
+
+  // 🆕 3.5초 후 인트로 숨기기
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSeasonIntro(false);
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     fetchFeaturedProducts();
@@ -25,11 +100,27 @@ function HomePage() {
 
   return (
     <div className="homepage">
+      {/* 🆕 KISTSU 브랜드 인트로 */}
+      {showSeasonIntro && (
+        <div className="season-intro" style={{ background: season.colors.introBg }}>
+          <div className="season-content">
+            <h1 className="brand-name">KISETSU</h1>
+            <div className="season-line">
+              <span className="season-emoji">{season.emoji}</span>
+              <p className="season-text">{season.text}을 입다..</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 히어로 섹션 */}
-      <section className="hero">
+      <section className={`hero season-${season.name}`} style={{ background: season.colors.gradient }}>
+        {/* 🆕 계절별 배경 애니메이션 */}
+        <div className={`season-animation ${season.animation}`}></div>
+        
         <div className="hero-content">
-          <h1 className="hero-title">계절</h1>
-          <p className="hero-subtitle">고요하고, 부드러운, 일상</p>
+          <h1 className="hero-brand">KIESTSU</h1>
+          <p className="hero-season">{season.emoji} {season.text}을 담다..</p>
           <Link to="/products" className="btn btn-primary">
             전체상품
           </Link>

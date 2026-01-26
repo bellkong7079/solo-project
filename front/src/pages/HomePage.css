@@ -1,3 +1,107 @@
+/* ========== 🆕 KISTSU 브랜드 인트로 ========== */
+.season-intro {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  /* background는 인라인 스타일로 동적 적용 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeOut 3.5s ease-in-out forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.season-content {
+  text-align: center;
+  color: #fff;
+}
+
+/* KISTSU 브랜드명 */
+.brand-name {
+  font-size: 120px;
+  font-weight: 900;
+  letter-spacing: 20px;
+  margin: 0 0 40px 0;
+  color: #fff;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+  animation: brandFadeIn 1.5s ease-out;
+}
+
+@keyframes brandFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px);
+    letter-spacing: 40px;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: 20px;
+  }
+}
+
+/* 계절 라인 */
+.season-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  animation: seasonLineIn 1s ease-out 0.8s backwards;
+}
+
+@keyframes seasonLineIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.season-emoji {
+  font-size: 60px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.season-text {
+  font-size: 36px;
+  font-weight: 300;
+  letter-spacing: 3px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Noto Serif KR', serif;
+}
+
+/* ========== 기존 스타일 ========== */
 .homepage {
   background-color: #ffffff;
   width: 100%;
@@ -6,32 +110,240 @@
 /* 히어로 섹션 */
 .hero {
   height: 500px;
-  background-color: #ffffff;
+  /* background-color는 인라인 스타일로 동적 적용 */
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   width: 100%;
+  transition: background 0.5s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 🆕 계절별 배경 애니메이션 컨테이너 */
+.season-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .hero-content {
   max-width: 600px;
   padding: 0 20px;
+  position: relative;
+  z-index: 2;
 }
 
-.hero-title {
-  font-size: 56px;
-  font-weight: 700;
-  letter-spacing: 4px;
-  margin-bottom: 16px;
-  color: #1a1a1a;
+/* 히어로 브랜드명 */
+.hero-brand {
+  font-size: 80px;
+  font-weight: 900;
+  letter-spacing: 15px;
+  margin-bottom: 20px;
+  color: #ffffff;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-.hero-subtitle {
-  font-size: 18px;
-  color: #666;
-  margin-bottom: 32px;
-  letter-spacing: 2px;
+/* 히어로 계절 텍스트 */
+.hero-season {
+  font-size: 32px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 40px;
+  letter-spacing: 3px;
+  font-family: 'Noto Serif KR', serif;
+}
+
+/* ========== 🌸 봄 - 벚꽃 애니메이션 ========== */
+.cherry-blossoms::before,
+.cherry-blossoms::after {
+  content: '🌸';
+  position: absolute;
+  font-size: 30px;
+  animation: fall 10s linear infinite;
+  opacity: 0.7;
+}
+
+.cherry-blossoms::before {
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.cherry-blossoms::after {
+  left: 30%;
+  animation-delay: 3s;
+}
+
+/* 여러 개의 벚꽃 생성 */
+.cherry-blossoms {
+  background-image: 
+    radial-gradient(circle, rgba(255, 182, 193, 0.3) 2px, transparent 2px),
+    radial-gradient(circle, rgba(255, 182, 193, 0.2) 3px, transparent 3px);
+  background-size: 50px 50px, 80px 80px;
+  background-position: 0 0, 40px 60px;
+  animation: blossomFloat 20s linear infinite;
+}
+
+@keyframes fall {
+  0% {
+    top: -10%;
+    transform: translateX(0) rotate(0deg);
+  }
+  100% {
+    top: 110%;
+    transform: translateX(100px) rotate(360deg);
+  }
+}
+
+@keyframes blossomFloat {
+  0% {
+    background-position: 0 0, 40px 60px;
+  }
+  100% {
+    background-position: 50px 50px, 90px 110px;
+  }
+}
+
+/* ========== ☀️ 여름 - 파도 애니메이션 ========== */
+.waves::before,
+.waves::after {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 2px, transparent 2px);
+  background-size: 30px 30px;
+  animation: wave 15s linear infinite;
+  opacity: 0.3;
+}
+
+.waves::after {
+  animation-delay: 5s;
+  animation-duration: 20s;
+}
+
+@keyframes wave {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* ========== 🍂 가을 - 낙엽 애니메이션 ========== */
+.falling-leaves::before,
+.falling-leaves::after {
+  content: '🍂';
+  position: absolute;
+  font-size: 25px;
+  animation: leafFall 12s linear infinite;
+  opacity: 0.6;
+}
+
+.falling-leaves::before {
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.falling-leaves::after {
+  left: 60%;
+  animation-delay: 4s;
+  content: '🍁';
+}
+
+/* 추가 낙엽들 */
+.falling-leaves {
+  background-image: 
+    radial-gradient(circle, rgba(210, 105, 30, 0.2) 2px, transparent 2px),
+    radial-gradient(circle, rgba(139, 69, 19, 0.15) 3px, transparent 3px);
+  background-size: 60px 60px, 90px 90px;
+  background-position: 0 0, 30px 50px;
+  animation: leafFloat 25s linear infinite;
+}
+
+@keyframes leafFall {
+  0% {
+    top: -10%;
+    transform: translateX(0) rotate(0deg);
+  }
+  100% {
+    top: 110%;
+    transform: translateX(-50px) rotate(-360deg);
+  }
+}
+
+@keyframes leafFloat {
+  0% {
+    background-position: 0 0, 30px 50px;
+  }
+  100% {
+    background-position: 60px 60px, 90px 110px;
+  }
+}
+
+/* ========== ❄️ 겨울 - 눈 내리는 애니메이션 ========== */
+.snowfall::before,
+.snowfall::after {
+  content: '❄️';
+  position: absolute;
+  font-size: 20px;
+  animation: snowFall 15s linear infinite;
+  opacity: 0.8;
+}
+
+.snowfall::before {
+  left: 15%;
+  animation-delay: 0s;
+}
+
+.snowfall::after {
+  left: 50%;
+  animation-delay: 5s;
+}
+
+/* 여러 개의 눈송이 */
+.snowfall {
+  background-image: 
+    radial-gradient(circle, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.3) 2px, transparent 2px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.2) 1.5px, transparent 1.5px);
+  background-size: 50px 50px, 80px 80px, 100px 100px;
+  background-position: 0 0, 40px 60px, 20px 30px;
+  animation: snowFloat 30s linear infinite;
+}
+
+@keyframes snowFall {
+  0% {
+    top: -10%;
+    transform: translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  100% {
+    top: 110%;
+    transform: translateX(30px) rotate(180deg);
+    opacity: 0.3;
+  }
+}
+
+@keyframes snowFloat {
+  0% {
+    background-position: 0 0, 40px 60px, 20px 30px;
+  }
+  100% {
+    background-position: 50px 100px, 90px 160px, 70px 130px;
+  }
 }
 
 .btn {
@@ -232,8 +544,14 @@
 }
 
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: 40px;
+  .hero-brand {
+    font-size: 48px;
+    letter-spacing: 10px;
+  }
+  
+  .hero-season {
+    font-size: 24px;
+    letter-spacing: 2px;
   }
 
   .category-grid {
@@ -248,6 +566,44 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 30px;
   }
+
+  /* 🆕 인트로 반응형 */
+  .season-intro {
+    padding: 20px;
+  }
+  
+  .brand-name {
+    font-size: 48px;
+    letter-spacing: 10px;
+    margin-bottom: 30px;
+  }
+  
+  @keyframes brandFadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+      letter-spacing: 20px;
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+      letter-spacing: 10px;
+    }
+  }
+  
+  .season-line {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .season-emoji {
+    font-size: 50px;
+  }
+  
+  .season-text {
+    font-size: 24px;
+    letter-spacing: 2px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -255,8 +611,14 @@
     height: 400px;
   }
 
-  .hero-title {
-    font-size: 32px;
+  .hero-brand {
+    font-size: 36px;
+    letter-spacing: 8px;
+  }
+  
+  .hero-season {
+    font-size: 18px;
+    letter-spacing: 1px;
   }
 
   .product-grid {
@@ -265,5 +627,19 @@
 
   .features-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* 🆕 작은 모바일 인트로 */
+  .brand-name {
+    font-size: 36px;
+    letter-spacing: 8px;
+  }
+  
+  .season-emoji {
+    font-size: 40px;
+  }
+  
+  .season-text {
+    font-size: 18px;
   }
 }
