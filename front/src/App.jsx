@@ -27,6 +27,10 @@ import AdminChatPage from './pages/AdminChatPage';
 import AdminCategoryPage from './pages/AdminCategoryPage';
 import AdminUserList from './pages/AdminUserList';
 import AdminUserDetail from './pages/AdminUserDetail';
+import SalesAnalytics from './pages/SalesAnalytics';
+import ProductAnalytics from './pages/ProductAnalytics';
+import CustomerAnalytics from './pages/CustomerAnalytics';
+import InventoryManagement from './pages/InventoryManagement';
 
 
 function AppContent() {
@@ -68,6 +72,10 @@ function AppContent() {
         <Route path="/admin/categories" element={<AdminCategoryPage />} />
         <Route path="/admin/users" element={<AdminUserList />} />
         <Route path="/admin/users/:userId" element={<AdminUserDetail />} />
+        <Route path="/admin/analytics/sales" element={<SalesAnalytics />} />
+        <Route path="/admin/analytics/products" element={<ProductAnalytics />} />
+        <Route path="/admin/analytics/customers" element={<CustomerAnalytics />} />
+        <Route path="/admin/inventory" element={<InventoryManagement />} />
       </Routes>
       
       {/* 관리자 페이지가 아닐 때만 Footer 표시 */}

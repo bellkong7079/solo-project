@@ -3,6 +3,34 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AdminDashboard.css';
 import AdminLayout from '../components/AdminLayout';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Line, Bar, Doughnut } from 'react-chartjs-2';
+
+// Chart.js 등록
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -11,6 +39,11 @@ function AdminDashboard() {
     todayOrders: 0,
     totalUsers: 0,
     totalSales: 0
+  });
+  const [chartData, setChartData] = useState({
+    dailySales: [],
+    categoryStats: [],
+    topProducts: []
   });
   const [loading, setLoading] = useState(true);
 
@@ -23,6 +56,7 @@ function AdminDashboard() {
     }
 
     fetchDashboardStats(token);
+    fetchChartData(token);
   }, [navigate]);
 
   const fetchDashboardStats = async (token) => {
@@ -56,6 +90,93 @@ function AdminDashboard() {
     }
   };
 
+  // 🆕 차트 데이터 가져오기
+  const fetchChartData = async (token) => {
+    try {
+      const response = await axios.get('http://192.168.0.219:5000/api/admin/dashboard/charts', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setChartData(response.data);
+    } catch (error) {
+      console.error('차트 데이터 조회 실패:', error);
+    }
+  };
+
+  // 🆕 일주일 매출 차트 데이터
+  const salesChartData = {
+    labels: chartData.dailySales?.map(d => d.date) || ['월', '화', '수', '목', '금', '토', '일'],
+    datasets: [
+      {
+        label: '일별 매출',
+        data: chartData.dailySales?.map(d => d.total) || [120000, 190000, 150000, 220000, 180000, 250000, 200000],
+        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.4,
+        fill: true
+      }
+    ]
+  };
+
+  // 🆕 카테고리별 판매 차트 데이터
+  const categoryChartData = {
+    labels: chartData.categoryStats?.map(c => c.name) || ['상의', '하의', '아우터', '악세서리'],
+    datasets: [
+      {
+        label: '판매량',
+        data: chartData.categoryStats?.map(c => c.count) || [45, 35, 25, 15],
+        backgroundColor: [
+          'rgba(59, 130, 246, 0.8)',
+          'rgba(16, 185, 129, 0.8)',
+          'rgba(245, 158, 11, 0.8)',
+          'rgba(139, 92, 246, 0.8)'
+        ],
+        borderWidth: 0
+      }
+    ]
+  };
+
+  // 🆕 베스트 상품 차트 데이터
+  const topProductsChartData = {
+    labels: chartData.topProducts?.map(p => p.name) || ['상품 A', '상품 B', '상품 C', '상품 D', '상품 E'],
+    datasets: [
+      {
+        label: '판매 수량',
+        data: chartData.topProducts?.map(p => p.sales) || [45, 38, 32, 28, 20],
+        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+        borderColor: 'rgba(16, 185, 129, 1)',
+        borderWidth: 1
+      }
+    ]
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom'
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  };
+
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'right'
+      }
+    }
+  };
+
   if (loading) {
     return (
       <AdminLayout>
@@ -71,6 +192,7 @@ function AdminDashboard() {
         <p>관리자 페이지에 오신 것을 환영합니다</p>
       </div>
 
+      {/* 통계 카드 */}
       <div className="dashboard-cards">
         <div className="stat-card">
           <div className="stat-icon blue">
@@ -126,6 +248,34 @@ function AdminDashboard() {
         </div>
       </div>
 
+      {/* 🆕 차트 섹션 */}
+      <div className="charts-section">
+        {/* 일주일 매출 추이 */}
+        <div className="chart-card">
+          <h3>일주일 매출 추이</h3>
+          <div className="chart-container">
+            <Line data={salesChartData} options={chartOptions} />
+          </div>
+        </div>
+
+        {/* 카테고리별 판매 */}
+        <div className="chart-card">
+          <h3>카테고리별 판매</h3>
+          <div className="chart-container">
+            <Doughnut data={categoryChartData} options={doughnutOptions} />
+          </div>
+        </div>
+
+        {/* 베스트 상품 Top 5 */}
+        <div className="chart-card full-width">
+          <h3>베스트 상품 Top 5</h3>
+          <div className="chart-container">
+            <Bar data={topProductsChartData} options={chartOptions} />
+          </div>
+        </div>
+      </div>
+
+      {/* 빠른 작업 */}
       <div className="quick-actions">
         <h2>빠른 작업</h2>
         <div className="action-buttons">
@@ -166,7 +316,7 @@ function AdminDashboard() {
           </Link>
         </div>
       </div>
-    </AdminLayout>
+    </AdminLayout>  
   );
 }
 

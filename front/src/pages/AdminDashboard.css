@@ -1,119 +1,127 @@
-/* 통계 카드 */
-.dashboard-cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-  margin-bottom: 40px;
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f5f5;
 }
 
-.stat-card {
-  background-color: #ffffff;
+.admin-sidebar {
+  width: 260px;
+  background: #1f2937;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.admin-logo {
   padding: 24px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.stat-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-}
-
-.stat-icon.blue {
-  background-color: #2196F3;
-}
-
-.stat-icon.green {
-  background-color: #4CAF50;
-}
-
-.stat-icon.orange {
-  background-color: #FF9800;
-}
-
-.stat-icon.purple {
-  background-color: #9C27B0;
-}
-
-.stat-info h3 {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
-  font-weight: 500;
-}
-
-.stat-number {
+.admin-logo h2 {
+  margin: 0;
   font-size: 24px;
   font-weight: 700;
-  color: #1a1a1a;
+  letter-spacing: 2px;
 }
 
-/* 빠른 작업 */
-.quick-actions {
-  background-color: #ffffff;
-  padding: 32px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.admin-nav {
+  flex: 1;
+  padding: 16px 0;
 }
 
-.quick-actions h2 {
-  font-size: 20px;
-  font-weight: 600;
+/* 🆕 섹션 스타일 */
+.nav-section {
   margin-bottom: 24px;
 }
 
-.action-buttons {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+.nav-section-title {
+  padding: 12px 24px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 8px;
 }
 
-.action-btn {
-  padding: 24px;
-  background-color: #f5f5f5;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  text-decoration: none;
-  color: #1a1a1a;
+.nav-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 12px;
-  font-size: 15px;
+  padding: 12px 24px;
+  color: #d1d5db;
+  text-decoration: none;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+  font-size: 14px;
   font-weight: 500;
-  transition: all 0.3s ease;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  width: 100%;
+  cursor: pointer;
 }
 
-.action-btn:hover {
-  background-color: #ffffff;
-  border-color: #1a1a1a;
-  transform: translateY(-2px);
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.nav-item.active {
+  background: rgba(59, 130, 246, 0.1);
+  color: #60a5fa;
+  border-left-color: #60a5fa;
+}
+
+.nav-item svg {
+  flex-shrink: 0;
+}
+
+.logout-btn {
+  color: #ef4444;
+  margin-top: 8px;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+}
+
+.admin-content {
+  flex: 1;
+  margin-left: 260px;
+  padding: 32px;
+  width: calc(100% - 260px); /* 정확한 너비 계산 */
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 /* 반응형 */
-@media (max-width: 1400px) {
-  .dashboard-cards {
-    grid-template-columns: repeat(2, 1fr);
+@media (max-width: 1024px) {
+  .admin-sidebar {
+    width: 220px;
   }
 
-  .action-buttons {
-    grid-template-columns: repeat(2, 1fr);
+  .admin-content {
+    margin-left: 220px;
+    width: calc(100% - 220px); /* 정확한 너비 */
+    padding: 24px;
   }
 }
 
 @media (max-width: 768px) {
-  .dashboard-cards {
-    grid-template-columns: 1fr;
+  .admin-sidebar {
+    width: 100%;
+    position: relative;
+    height: auto;
   }
 
-  .action-buttons {
-    grid-template-columns: 1fr;
+  .admin-content {
+    margin-left: 0;
+    width: 100%; /* 전체 너비 */
+    padding: 16px;
   }
 }

@@ -40,12 +40,14 @@ exports.getOrderDetail = async (req, res) => {
       return res.status(404).json({ message: '주문을 찾을 수 없습니다.' });
     }
 
-    // 주문 상품 정보 조회
+    // 주문 상품 정보 조회 (썸네일 이미지 서브쿼리로 가져오기)
     const [items] = await db.query(
       `SELECT 
         oi.*,
         p.name,
-        p.thumbnail,
+        (SELECT image_url FROM product_images 
+         WHERE product_id = p.product_id AND is_thumbnail = 1 
+         LIMIT 1) as thumbnail,
         po.option_name,
         po.option_value
       FROM order_items oi

@@ -276,6 +276,7 @@ exports.updateOrderStatus = async (req, res) => {
     res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
 };
+
 // 대시보드 통계
 exports.getDashboardStats = async (req, res) => {
   try {
@@ -306,6 +307,7 @@ exports.getDashboardStats = async (req, res) => {
     res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
 };
+
 // 주문 상세 조회
 exports.getOrderDetail = async (req, res) => {
   try {
@@ -338,5 +340,92 @@ exports.getOrderDetail = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+  }
+};
+
+// 🆕 대시보드 차트 데이터
+exports.getDashboardCharts = async (req, res) => {
+  try {
+    console.log('===== 차트 데이터 요청 =====');
+
+    // 1. 일주일 매출 데이터
+    const [dailySales] = await db.query(`
+      SELECT 
+        DATE_FORMAT(created_at, '%m/%d') as date,
+        COALESCE(SUM(total_price), 0) as total
+      FROM orders
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        AND status != 'cancelled'
+      GROUP BY DATE(created_at)
+      ORDER BY DATE(created_at) ASC
+    `);
+
+    console.log('✅ 일주일 매출:', dailySales);
+
+    // 2. 카테고리별 판매 통계
+    const [categoryStats] = await db.query(`
+      SELECT 
+        c.name,
+        COUNT(DISTINCT oi.order_id) as count
+      FROM categories c
+      LEFT JOIN products p ON c.category_id = p.category_id
+      LEFT JOIN order_items oi ON p.product_id = oi.product_id
+      LEFT JOIN orders o ON oi.order_id = o.order_id
+      WHERE o.status != 'cancelled' OR o.status IS NULL
+      GROUP BY c.category_id, c.name
+      ORDER BY count DESC
+      LIMIT 4
+    `);
+
+    console.log('✅ 카테고리별 판매:', categoryStats);
+
+    // 3. 베스트 상품 Top 5
+    const [topProducts] = await db.query(`
+      SELECT 
+        p.name,
+        SUM(oi.quantity) as sales
+      FROM order_items oi
+      JOIN products p ON oi.product_id = p.product_id
+      JOIN orders o ON oi.order_id = o.order_id
+      WHERE o.status != 'cancelled'
+      GROUP BY oi.product_id, p.name
+      ORDER BY sales DESC
+      LIMIT 5
+    `);
+
+    console.log('✅ 베스트 상품:', topProducts);
+
+    // 기본값 설정 (데이터가 없을 경우)
+    const defaultDailySales = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+      defaultDailySales.push({ date: dateStr, total: 0 });
+    }
+
+    res.json({
+      dailySales: dailySales.length > 0 ? dailySales : defaultDailySales,
+      categoryStats: categoryStats.length > 0 ? categoryStats : [
+        { name: '상의', count: 0 },
+        { name: '하의', count: 0 },
+        { name: '아우터', count: 0 },
+        { name: '악세서리', count: 0 }
+      ],
+      topProducts: topProducts.length > 0 ? topProducts : [
+        { name: '상품 A', sales: 0 },
+        { name: '상품 B', sales: 0 },
+        { name: '상품 C', sales: 0 },
+        { name: '상품 D', sales: 0 },
+        { name: '상품 E', sales: 0 }
+      ]
+    });
+
+  } catch (error) {
+    console.error('❌ 차트 데이터 조회 에러:', error);
+    res.status(500).json({ 
+      message: '서버 에러가 발생했습니다.',
+      error: error.message 
+    });
   }
 };
