@@ -1,0 +1,300 @@
+/* MembershipBenefits.css */
+
+.membership-benefits-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);
+  padding: 60px 20px;
+}
+
+.benefits-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 헤더 */
+.benefits-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.benefits-header h1 {
+  font-size: 42px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: #111827;
+}
+
+.benefits-header p {
+  font-size: 18px;
+  color: #6b7280;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* 등급 카드 그리드 */
+.tier-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 60px;
+}
+
+/* 등급 카드 */
+.benefit-tier-card {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+  border: 3px solid transparent;
+}
+
+.benefit-tier-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.benefit-tier-card.vip {
+  border-color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+}
+
+.benefit-tier-card.gold {
+  border-color: #f093fb;
+  background: linear-gradient(135deg, rgba(240, 147, 251, 0.05) 0%, rgba(245, 87, 108, 0.05) 100%);
+}
+
+.benefit-tier-card.silver {
+  border-color: #a8edea;
+  background: linear-gradient(135deg, rgba(168, 237, 234, 0.05) 0%, rgba(254, 214, 227, 0.05) 100%);
+}
+
+.benefit-tier-card.bronze {
+  border-color: #ffecd2;
+  background: linear-gradient(135deg, rgba(255, 236, 210, 0.3) 0%, rgba(252, 182, 159, 0.3) 100%);
+}
+
+/* 등급 배지 */
+.tier-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 24px;
+  border-radius: 50px;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.benefit-tier-card.vip .tier-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.benefit-tier-card.gold .tier-badge {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.benefit-tier-card.silver .tier-badge {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  color: #333;
+}
+
+.benefit-tier-card.bronze .tier-badge {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  color: #333;
+}
+
+.tier-badge .tier-icon {
+  font-size: 28px;
+}
+
+.tier-badge .tier-name {
+  font-size: 22px;
+  letter-spacing: 1px;
+}
+
+/* 등급 조건 */
+.tier-requirement {
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.tier-requirement strong {
+  color: #111827;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* 혜택 상세 리스트 */
+.benefits-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.benefit-detail-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.benefit-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  border-radius: 12px;
+}
+
+.benefit-content h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.benefit-content p {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+/* 안내 사항 */
+.benefits-notice {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 40px;
+  border: 2px solid #e5e7eb;
+}
+
+.benefits-notice h3 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.benefits-notice ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.benefits-notice li {
+  padding: 12px 0;
+  font-size: 15px;
+  color: #374151;
+  line-height: 1.6;
+  border-bottom: 1px solid #f3f4f6;
+  position: relative;
+  padding-left: 24px;
+}
+
+.benefits-notice li:before {
+  content: "•";
+  position: absolute;
+  left: 8px;
+  color: #3b82f6;
+  font-weight: bold;
+}
+
+.benefits-notice li:last-child {
+  border-bottom: none;
+}
+
+/* CTA 버튼 */
+.benefits-cta {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s;
+  display: inline-block;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.btn-secondary {
+  background: white;
+  color: #3b82f6;
+  border: 2px solid #3b82f6;
+}
+
+.btn-secondary:hover {
+  background: #3b82f6;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .benefits-header h1 {
+    font-size: 32px;
+  }
+
+  .benefits-header p {
+    font-size: 16px;
+  }
+
+  .tier-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .benefit-tier-card {
+    padding: 24px;
+  }
+
+  .tier-badge {
+    padding: 12px 20px;
+  }
+
+  .tier-badge .tier-icon {
+    font-size: 24px;
+  }
+
+  .tier-badge .tier-name {
+    font-size: 18px;
+  }
+
+  .benefits-cta {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+}

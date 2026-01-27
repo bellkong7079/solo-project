@@ -8,9 +8,10 @@ const API_URL = 'http://192.168.0.219:5000/api';
 
 function Header() {
   const [user, setUser] = useState(null);
+  const [userTier, setUserTier] = useState(null); // 🆕 등급 정보
   const [categories, setCategories] = useState([]);
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [showUserDropdown, setShowUserDropdown] = useState(false); // 🆕 유저 드롭다운 메뉴
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -20,9 +21,47 @@ function Header() {
     checkLoginStatus();
   }, [location]);
 
+  // 🆕 user가 변경될 때 등급 조회
+  useEffect(() => {
+    if (user && !user.isAdmin) {
+      fetchUserTier();
+    }
+  }, [user]);
+
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  // 🆕 사용자 등급 조회
+  const fetchUserTier = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      console.log('🔍 등급 조회 시작...');
+      const response = await axios.get(`${API_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      console.log('📦 받은 데이터:', response.data);
+      
+      // 총 구매액 기반 등급 계산
+      const totalSpent = response.data.user.total_spent || 0;
+      console.log('💰 총 구매액:', totalSpent);
+      
+      let tier = '일반';
+      
+      if (totalSpent >= 1500000) tier = 'VIP';
+      else if (totalSpent >= 800000) tier = '골드';
+      else if (totalSpent >= 400000) tier = '실버';
+      else if (totalSpent >= 200000) tier = '브론즈';
+      
+      console.log('🏆 계산된 등급:', tier);
+      setUserTier(tier);
+    } catch (error) {
+      console.error('❌ 등급 조회 실패:', error);
+    }
+  };
 
   const checkLoginStatus = () => {
     const token = localStorage.getItem('token');
@@ -65,6 +104,38 @@ function Header() {
     }
   };
 
+  // 🆕 등급별 아이콘 반환
+  const getTierIcon = (tier) => {
+    switch(tier) {
+      case 'VIP':
+        return '💎';
+      case '골드':
+        return '🥇';
+      case '실버':
+        return '🥈';
+      case '브론즈':
+        return '🥉';
+      default:
+        return '👤';
+    }
+  };
+
+  // 🆕 등급별 색상 클래스
+  const getTierClass = (tier) => {
+    switch(tier) {
+      case 'VIP':
+        return 'tier-vip';
+      case '골드':
+        return 'tier-gold';
+      case '실버':
+        return 'tier-silver';
+      case '브론즈':
+        return 'tier-bronze';
+      default:
+        return 'tier-normal';
+    }
+  };
+
   const handleLogout = () => {
     if (window.confirm('로그아웃 하시겠습니까?')) {
       localStorage.removeItem('token');
@@ -91,7 +162,7 @@ function Header() {
       <div className="header-content">
         {/* 로고 */}
         <Link to="/" className="logo">
-       KISETSU
+          jongbin'S 服屋
         </Link>
 
         {/* 네비게이션 - 동적 카테고리 */}
@@ -140,12 +211,12 @@ function Header() {
             <div className="user-menu-wrapper">
               {/* 🆕 유저 메뉴 버튼 */}
               <button 
-                className="user-menu-btn"
+                className={`user-menu-btn ${userTier ? getTierClass(userTier) : ''}`}
                 onClick={() => setShowUserDropdown(!showUserDropdown)}
                 onBlur={() => setTimeout(() => setShowUserDropdown(false), 200)}
               >
                 <span className="user-name">
-                  {user.isAdmin ? '👑 ' : ''}{user.name}님
+                  {user.isAdmin ? '👑 ' : userTier ? `${getTierIcon(userTier)} ` : ''}{user.name}님
                 </span>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="6 9 12 15 18 9"></polyline>
@@ -155,6 +226,13 @@ function Header() {
               {/* 🆕 드롭다운 메뉴 */}
               {showUserDropdown && (
                 <div className="user-dropdown">
+                  {!user.isAdmin && userTier && (
+                    <div className="tier-badge-dropdown">
+                      <span className={`tier-badge ${getTierClass(userTier)}`}>
+                        {getTierIcon(userTier)} {userTier}
+                      </span>
+                    </div>
+                  )}
                   {!user.isAdmin && (
                     <>
                       <Link to="/mypage" className="dropdown-item">

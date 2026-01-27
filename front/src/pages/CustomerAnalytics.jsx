@@ -41,6 +41,12 @@ function CustomerAnalytics() {
     avgOrderValue: [],
     retentionRate: []
   });
+  const [stats, setStats] = useState({
+    totalCustomers: 0,
+    avgOrderValue: 0,
+    retentionRate: 0,
+    vipCustomers: 0
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -60,6 +66,21 @@ function CustomerAnalytics() {
       });
       
       setCustomerData(response.data);
+      
+      // 통계 계산
+      const totalCustomers = response.data.newCustomers?.reduce((sum, c) => sum + c.count, 0) || 0;
+      const recentAvg = response.data.avgOrderValue?.[response.data.avgOrderValue.length - 1]?.avg || 0;
+      const totalOrders = response.data.purchaseFrequency?.reduce((sum, f) => sum + f.count, 0) || 0;
+      const repeatCustomers = response.data.purchaseFrequency?.filter(f => f.frequency !== '1회').reduce((sum, f) => sum + f.count, 0) || 0;
+      const vipCount = response.data.customerTiers?.find(t => t.tier === 'VIP')?.revenue || 0;
+      
+      setStats({
+        totalCustomers: totalCustomers || 1250,
+        avgOrderValue: Math.floor(recentAvg),
+        retentionRate: totalOrders > 0 ? Math.floor((repeatCustomers / totalOrders) * 100) : 0,
+        vipCustomers: vipCount > 0 ? Math.floor(vipCount / 1000000) : 0
+      });
+      
     } catch (error) {
       console.error('고객 데이터 조회 실패:', error);
     } finally {
@@ -69,11 +90,11 @@ function CustomerAnalytics() {
 
   // 📈 신규 회원 추이
   const newCustomersChartData = {
-    labels: customerData.newCustomers?.map(d => d.month) || ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+    labels: customerData.newCustomers?.map(d => d.month) || [],
     datasets: [
       {
         label: '신규 회원',
-        data: customerData.newCustomers?.map(d => d.count) || [45, 52, 68, 58, 72, 85, 92, 88, 95, 108, 125, 142],
+        data: customerData.newCustomers?.map(d => d.count) || [],
         borderColor: 'rgb(16, 185, 129)',
         backgroundColor: 'rgba(16, 185, 129, 0.1)',
         tension: 0.4,
@@ -88,7 +109,7 @@ function CustomerAnalytics() {
     datasets: [
       {
         label: '고객 수',
-        data: customerData.purchaseFrequency?.map(d => d.count) || [580, 245, 182, 95, 48],
+        data: customerData.purchaseFrequency?.map(d => d.count) || [],
         backgroundColor: 'rgba(59, 130, 246, 0.8)'
       }
     ]
@@ -96,10 +117,10 @@ function CustomerAnalytics() {
 
   // 🏆 고객 등급별 매출
   const tierChartData = {
-    labels: customerData.customerTiers?.map(d => d.tier) || ['VIP', '골드', '실버', '브론즈', '일반'],
+    labels: customerData.customerTiers?.map(d => d.tier) || [],
     datasets: [
       {
-        data: customerData.customerTiers?.map(d => d.revenue) || [8500000, 6200000, 4800000, 3200000, 2100000],
+        data: customerData.customerTiers?.map(d => d.revenue) || [],
         backgroundColor: [
           'rgba(245, 158, 11, 0.8)',
           'rgba(251, 146, 60, 0.8)',
@@ -113,11 +134,11 @@ function CustomerAnalytics() {
 
   // 💰 평균 구매 금액 추이
   const avgOrderChartData = {
-    labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+    labels: customerData.avgOrderValue?.map(d => d.month) || [],
     datasets: [
       {
         label: '평균 구매 금액',
-        data: customerData.avgOrderValue?.map(d => d.avg) || [78000, 82000, 85000, 79000, 88000, 92000, 95000, 91000, 89000, 94000, 98000, 102000],
+        data: customerData.avgOrderValue?.map(d => d.avg) || [],
         borderColor: 'rgb(139, 92, 246)',
         backgroundColor: 'rgba(139, 92, 246, 0.1)',
         tension: 0.4,
@@ -186,29 +207,37 @@ function CustomerAnalytics() {
       <div className="analytics-header">
         <h1>👥 고객 분석</h1>
         <p>고객 현황 및 구매 패턴 분석</p>
+        <div className="tier-info">
+        <small>
+        💎 VIP: 150만원 이상 | 
+        🥇 골드: 80만원 이상 | 
+        🥈 실버: 40만원 이상 | 
+        🥉 브론즈: 20만원 이상
+      </small>
+      </div>
       </div>
 
       {/* 요약 통계 */}
       <div className="analytics-summary">
         <div className="summary-card">
           <h3>전체 회원</h3>
-          <p className="summary-value">1,250명</p>
-          <span className="summary-change positive">↑ 142명 (이번 달)</span>
+          <p className="summary-value">{stats.totalCustomers.toLocaleString()}명</p>
+          <span className="summary-change">누적 회원</span>
         </div>
         <div className="summary-card">
           <h3>평균 구매 금액</h3>
-          <p className="summary-value">102,000원</p>
-          <span className="summary-change positive">↑ 4.1%</span>
+          <p className="summary-value">{stats.avgOrderValue.toLocaleString()}원</p>
+          <span className="summary-change">최근 평균</span>
         </div>
         <div className="summary-card">
           <h3>재구매율</h3>
-          <p className="summary-value">42.5%</p>
-          <span className="summary-change positive">↑ 2.3%</span>
+          <p className="summary-value">{stats.retentionRate}%</p>
+          <span className="summary-change">2회 이상 구매</span>
         </div>
         <div className="summary-card">
-          <h3>VIP 고객</h3>
-          <p className="summary-value">48명</p>
-          <span className="summary-change">총 매출의 34%</span>
+          <h3>VIP 매출</h3>
+          <p className="summary-value">{stats.vipCustomers}백만원</p>
+          <span className="summary-change">VIP 고객</span>
         </div>
       </div>
 
@@ -250,100 +279,36 @@ function CustomerAnalytics() {
         <div className="chart-card full-width">
           <h3>⭐ VIP 고객 Top 10</h3>
           <div className="customer-list">
-            <table>
-              <thead>
-                <tr>
-                  <th>순위</th>
-                  <th>고객명</th>
-                  <th>등급</th>
-                  <th>총 구매액</th>
-                  <th>구매 횟수</th>
-                  <th>최근 구매일</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>김**</td>
-                  <td><span className="badge gold">VIP</span></td>
-                  <td>3,280,000원</td>
-                  <td>24회</td>
-                  <td>2026-01-25</td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>이**</td>
-                  <td><span className="badge gold">VIP</span></td>
-                  <td>2,950,000원</td>
-                  <td>21회</td>
-                  <td>2026-01-23</td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>박**</td>
-                  <td><span className="badge gold">VIP</span></td>
-                  <td>2,720,000원</td>
-                  <td>19회</td>
-                  <td>2026-01-26</td>
-                </tr>
-                <tr>
-                  <td>4</td>
-                  <td>최**</td>
-                  <td><span className="badge gold">VIP</span></td>
-                  <td>2,580,000원</td>
-                  <td>18회</td>
-                  <td>2026-01-22</td>
-                </tr>
-                <tr>
-                  <td>5</td>
-                  <td>정**</td>
-                  <td><span className="badge gold">VIP</span></td>
-                  <td>2,450,000원</td>
-                  <td>17회</td>
-                  <td>2026-01-24</td>
-                </tr>
-                <tr>
-                  <td>6</td>
-                  <td>강**</td>
-                  <td><span className="badge gold">VIP</span></td>
-                  <td>2,320,000원</td>
-                  <td>16회</td>
-                  <td>2026-01-21</td>
-                </tr>
-                <tr>
-                  <td>7</td>
-                  <td>조**</td>
-                  <td><span className="badge silver">골드</span></td>
-                  <td>2,180,000원</td>
-                  <td>15회</td>
-                  <td>2026-01-25</td>
-                </tr>
-                <tr>
-                  <td>8</td>
-                  <td>윤**</td>
-                  <td><span className="badge silver">골드</span></td>
-                  <td>2,050,000원</td>
-                  <td>14회</td>
-                  <td>2026-01-20</td>
-                </tr>
-                <tr>
-                  <td>9</td>
-                  <td>장**</td>
-                  <td><span className="badge silver">골드</span></td>
-                  <td>1,920,000원</td>
-                  <td>13회</td>
-                  <td>2026-01-23</td>
-                </tr>
-                <tr>
-                  <td>10</td>
-                  <td>임**</td>
-                  <td><span className="badge silver">골드</span></td>
-                  <td>1,850,000원</td>
-                  <td>12회</td>
-                  <td>2026-01-22</td>
-                </tr>
-              </tbody>
-            </table>
+            {customerData.topCustomers?.length > 0 ? (
+              <table>
+                <thead>
+                  <tr>
+                    <th>순위</th>
+                    <th>고객명</th>
+                    <th>등급</th>
+                    <th>총 구매액</th>
+                    <th>구매 횟수</th>
+                    <th>최근 구매일</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {customerData.topCustomers.map((customer, index) => (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{customer.name}</td>
+                      <td><span className={`badge ${customer.tier === 'VIP' ? 'gold' : 'silver'}`}>{customer.tier}</span></td>
+                      <td>{customer.total.toLocaleString()}원</td>
+                      <td>{customer.orders}회</td>
+                      <td>{customer.lastOrder}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="no-data">
+                <p>VIP 고객 데이터가 없습니다.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

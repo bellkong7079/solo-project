@@ -34,6 +34,12 @@ function InventoryManagement() {
     turnoverRate: [],
     slowMoving: []
   });
+  const [stats, setStats] = useState({
+    totalStock: 0,
+    lowStockCount: 0,
+    avgTurnover: 0,
+    totalValue: 0
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -53,6 +59,21 @@ function InventoryManagement() {
       });
       
       setInventoryData(response.data);
+      
+      // 통계 계산 (숫자로 명확히 변환)
+      const totalStock = response.data.stockByCategory?.reduce((sum, c) => sum + Number(c.stock || 0), 0) || 0;
+      const lowStock = response.data.stockStatus?.find(s => s.status === 'critical')?.count || 0;
+      const lowStockCount = response.data.lowStockItems?.length || 0;
+      const normalTurnover = response.data.turnoverRate?.find(t => t.speed === 'normal')?.count || 0;
+      const fastTurnover = response.data.turnoverRate?.find(t => t.speed === 'fast')?.count || 0;
+      
+      setStats({
+        totalStock: totalStock,
+        lowStockCount: lowStockCount,
+        avgTurnover: Number(normalTurnover) + Number(fastTurnover),
+        totalValue: totalStock * 50000  // Math.floor 제거
+      });
+      
     } catch (error) {
       console.error('재고 데이터 조회 실패:', error);
     } finally {
@@ -62,11 +83,11 @@ function InventoryManagement() {
 
   // 📦 카테고리별 재고 현황
   const stockChartData = {
-    labels: inventoryData.stockByCategory?.map(c => c.name) || ['상의', '하의', '아우터', '신발', '악세서리'],
+    labels: inventoryData.stockByCategory?.map(c => c.name) || [],
     datasets: [
       {
         label: '재고 수량',
-        data: inventoryData.stockByCategory?.map(c => c.stock) || [850, 720, 620, 450, 280],
+        data: inventoryData.stockByCategory?.map(c => c.stock) || [],
         backgroundColor: 'rgba(59, 130, 246, 0.8)'
       }
     ]
@@ -77,7 +98,7 @@ function InventoryManagement() {
     labels: ['정상 (50개 이상)', '주의 (20-49개)', '부족 (10-19개)', '긴급 (10개 미만)'],
     datasets: [
       {
-        data: inventoryData.stockStatus?.map(s => s.count) || [156, 58, 23, 12],
+        data: inventoryData.stockStatus?.map(s => s.count) || [],
         backgroundColor: [
           'rgba(16, 185, 129, 0.8)',
           'rgba(245, 158, 11, 0.8)',
@@ -94,7 +115,7 @@ function InventoryManagement() {
     datasets: [
       {
         label: '상품 수',
-        data: inventoryData.turnoverRate?.map(t => t.count) || [45, 85, 72, 43],
+        data: inventoryData.turnoverRate?.map(t => t.count) || [],
         backgroundColor: [
           'rgba(16, 185, 129, 0.8)',
           'rgba(59, 130, 246, 0.8)',
@@ -144,21 +165,21 @@ function InventoryManagement() {
       <div className="analytics-summary">
         <div className="summary-card">
           <h3>전체 재고</h3>
-          <p className="summary-value">2,920개</p>
+          <p className="summary-value">{stats.totalStock.toLocaleString()}개</p>
         </div>
         <div className="summary-card warning">
           <h3>재고 부족</h3>
-          <p className="summary-value">35개 상품</p>
+          <p className="summary-value">{stats.lowStockCount}개 상품</p>
           <span className="summary-change">⚠️ 조치 필요</span>
         </div>
         <div className="summary-card">
-          <h3>평균 회전율</h3>
-          <p className="summary-value">주 6.2개</p>
+          <h3>정상 회전율</h3>
+          <p className="summary-value">{stats.avgTurnover}개 상품</p>
           <span className="summary-change positive">↑ 양호</span>
         </div>
         <div className="summary-card">
           <h3>재고 총액</h3>
-          <p className="summary-value">148,500,000원</p>
+          <p className="summary-value">{stats.totalValue.toLocaleString()}원</p>
         </div>
       </div>
 
@@ -192,68 +213,36 @@ function InventoryManagement() {
         <div className="chart-card full-width">
           <h3>🚨 긴급 재고 부족 상품 (10개 미만)</h3>
           <div className="inventory-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>상품명</th>
-                  <th>옵션</th>
-                  <th>현재 재고</th>
-                  <th>일 판매량</th>
-                  <th>재고 소진 예상</th>
-                  <th>상태</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="critical">
-                  <td>린넨 셔츠</td>
-                  <td>화이트 / L</td>
-                  <td className="stock-value">3개</td>
-                  <td>1.2개/일</td>
-                  <td className="danger">2-3일</td>
-                  <td><span className="badge danger">긴급</span></td>
-                </tr>
-                <tr className="critical">
-                  <td>슬림 진</td>
-                  <td>블루 / 30</td>
-                  <td className="stock-value">5개</td>
-                  <td>0.8개/일</td>
-                  <td className="danger">6일</td>
-                  <td><span className="badge danger">긴급</span></td>
-                </tr>
-                <tr className="warning">
-                  <td>후드 티셔츠</td>
-                  <td>블랙 / M</td>
-                  <td className="stock-value">8개</td>
-                  <td>0.6개/일</td>
-                  <td className="warning">13일</td>
-                  <td><span className="badge warning">주의</span></td>
-                </tr>
-                <tr className="warning">
-                  <td>맨투맨</td>
-                  <td>그레이 / L</td>
-                  <td className="stock-value">7개</td>
-                  <td>0.5개/일</td>
-                  <td className="warning">14일</td>
-                  <td><span className="badge warning">주의</span></td>
-                </tr>
-                <tr className="warning">
-                  <td>스니커즈</td>
-                  <td>화이트 / 270</td>
-                  <td className="stock-value">6개</td>
-                  <td>0.4개/일</td>
-                  <td className="warning">15일</td>
-                  <td><span className="badge warning">주의</span></td>
-                </tr>
-                <tr className="warning">
-                  <td>가디건</td>
-                  <td>베이지 / M</td>
-                  <td className="stock-value">9개</td>
-                  <td>0.5개/일</td>
-                  <td className="warning">18일</td>
-                  <td><span className="badge warning">주의</span></td>
-                </tr>
-              </tbody>
-            </table>
+            {inventoryData.lowStockItems?.length > 0 ? (
+              <table>
+                <thead>
+                  <tr>
+                    <th>상품명</th>
+                    <th>옵션</th>
+                    <th>현재 재고</th>
+                    <th>상태</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {inventoryData.lowStockItems.map((item, index) => (
+                    <tr key={index} className={item.stock <= 5 ? 'critical' : 'warning'}>
+                      <td>{item.product_name}</td>
+                      <td>{item.option_name}: {item.option_value}</td>
+                      <td className="stock-value">{item.stock}개</td>
+                      <td>
+                        <span className={`badge ${item.stock <= 5 ? 'danger' : 'warning'}`}>
+                          {item.stock <= 5 ? '긴급' : '주의'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="no-data">
+                <p>재고 부족 상품이 없습니다.</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -261,60 +250,42 @@ function InventoryManagement() {
         <div className="chart-card full-width">
           <h3>🐢 장기 미판매 상품 (60일 이상)</h3>
           <div className="inventory-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>상품명</th>
-                  <th>옵션</th>
-                  <th>재고</th>
-                  <th>마지막 판매일</th>
-                  <th>미판매 기간</th>
-                  <th>권장 조치</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>체크 셔츠</td>
-                  <td>레드 / XL</td>
-                  <td>42개</td>
-                  <td>2025-10-15</td>
-                  <td>103일</td>
-                  <td><span className="badge info">할인 진행</span></td>
-                </tr>
-                <tr>
-                  <td>카고 팬츠</td>
-                  <td>카키 / 34</td>
-                  <td>38개</td>
-                  <td>2025-10-28</td>
-                  <td>90일</td>
-                  <td><span className="badge info">할인 검토</span></td>
-                </tr>
-                <tr>
-                  <td>플리스 집업</td>
-                  <td>네이비 / L</td>
-                  <td>35개</td>
-                  <td>2025-11-05</td>
-                  <td>82일</td>
-                  <td><span className="badge info">프로모션</span></td>
-                </tr>
-                <tr>
-                  <td>와이드 팬츠</td>
-                  <td>블랙 / L</td>
-                  <td>32개</td>
-                  <td>2025-11-12</td>
-                  <td>75일</td>
-                  <td><span className="badge info">재고 정리</span></td>
-                </tr>
-                <tr>
-                  <td>니트 조끼</td>
-                  <td>브라운 / M</td>
-                  <td>28개</td>
-                  <td>2025-11-18</td>
-                  <td>69일</td>
-                  <td><span className="badge info">번들 판매</span></td>
-                </tr>
-              </tbody>
-            </table>
+            {inventoryData.slowMoving?.length > 0 ? (
+              <table>
+                <thead>
+                  <tr>
+                    <th>상품명</th>
+                    <th>옵션</th>
+                    <th>재고</th>
+                    <th>마지막 판매일</th>
+                    <th>미판매 기간</th>
+                    <th>권장 조치</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {inventoryData.slowMoving.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.name}</td>
+                      <td>{item.option}</td>
+                      <td>{item.stock}개</td>
+                      <td>{item.last_sale_date ? new Date(item.last_sale_date).toLocaleDateString('ko-KR') : '판매 기록 없음'}</td>
+                      <td>{item.days_since_sale || 'N/A'}일</td>
+                      <td>
+                        <span className="badge info">
+                          {item.days_since_sale > 90 ? '할인 진행' : 
+                           item.days_since_sale > 75 ? '할인 검토' : 
+                           item.days_since_sale > 60 ? '프로모션' : '재고 정리'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="no-data">
+                <p>장기 미판매 상품이 없습니다.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

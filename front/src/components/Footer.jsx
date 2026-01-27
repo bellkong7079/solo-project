@@ -29,6 +29,7 @@ function Footer() {
             <ul className="footer-links">
               <li><a href="/shipping">배송 안내</a></li>
               <li><a href="/faq">FAQ</a></li>
+              <li><a href="/membership-benefits">회원 등급</a></li>
             </ul>
           </div>
 

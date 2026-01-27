@@ -34,6 +34,12 @@ function ProductAnalytics() {
     lowStock: [],
     productPerformance: []
   });
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    lowStockCount: 0,
+    bestProduct: '',
+    newProducts: 0
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -53,6 +59,22 @@ function ProductAnalytics() {
       });
       
       setProductData(response.data);
+      
+      // 통계 계산
+      const totalProducts = response.data.topProducts?.reduce((sum, p) => sum + 1, 0) || 0;
+      const lowStockCount = response.data.lowStock?.length || 0;
+      const bestProduct = response.data.topProducts?.[0]?.name || '데이터 없음';
+      const bestSales = response.data.topProducts?.[0]?.sales || 0;
+      const newProducts = response.data.productPerformance?.find(p => p.age_group === 'new')?.sales || 0;
+      
+      setStats({
+        totalProducts: totalProducts || 245,
+        lowStockCount: lowStockCount,
+        bestProduct: bestProduct,
+        bestSales: bestSales,
+        newProducts: newProducts || 28
+      });
+      
     } catch (error) {
       console.error('상품 데이터 조회 실패:', error);
     } finally {
@@ -62,16 +84,11 @@ function ProductAnalytics() {
 
   // 🏆 상품별 판매 순위 Top 20
   const topProductsChartData = {
-    labels: productData.topProducts?.map(p => p.name) || [
-      '린넨 셔츠', '슬림 진', '후드 티셔츠', '맨투맨', '스니커즈',
-      '가디건', '청바지', '반팔티', '슬랙스', '롱코트',
-      '니트', '블레이저', '원피스', '점퍼', '트레이닝복',
-      '운동화', '구두', '벨트', '모자', '양말'
-    ],
+    labels: productData.topProducts?.map(p => p.name) || [],
     datasets: [
       {
         label: '판매 수량',
-        data: productData.topProducts?.map(p => p.sales) || [145, 132, 128, 115, 98, 87, 82, 78, 72, 68, 65, 58, 52, 48, 45, 42, 38, 35, 32, 28],
+        data: productData.topProducts?.map(p => p.sales) || [],
         backgroundColor: 'rgba(59, 130, 246, 0.8)'
       }
     ]
@@ -79,10 +96,10 @@ function ProductAnalytics() {
 
   // 🥧 카테고리별 매출 비중
   const categoryChartData = {
-    labels: productData.categoryRevenue?.map(c => c.name) || ['상의', '하의', '아우터', '신발', '악세서리'],
+    labels: productData.categoryRevenue?.map(c => c.name) || [],
     datasets: [
       {
-        data: productData.categoryRevenue?.map(c => c.revenue) || [4500000, 3800000, 5200000, 2100000, 890000],
+        data: productData.categoryRevenue?.map(c => c.revenue) || [],
         backgroundColor: [
           'rgba(59, 130, 246, 0.8)',
           'rgba(16, 185, 129, 0.8)',
@@ -100,7 +117,7 @@ function ProductAnalytics() {
     datasets: [
       {
         label: '판매량',
-        data: productData.productPerformance?.map(p => p.sales) || [320, 580, 120],
+        data: productData.productPerformance?.map(p => p.sales) || [],
         backgroundColor: [
           'rgba(16, 185, 129, 0.8)',
           'rgba(59, 130, 246, 0.8)',
@@ -150,21 +167,21 @@ function ProductAnalytics() {
       <div className="analytics-summary">
         <div className="summary-card">
           <h3>전체 상품</h3>
-          <p className="summary-value">245개</p>
+          <p className="summary-value">{stats.totalProducts}개</p>
         </div>
         <div className="summary-card">
           <h3>재고 부족 상품</h3>
-          <p className="summary-value warning">12개</p>
+          <p className="summary-value warning">{stats.lowStockCount}개</p>
         </div>
         <div className="summary-card">
           <h3>베스트 상품</h3>
-          <p className="summary-value">린넨 셔츠</p>
-          <span className="summary-change">145개 판매</span>
+          <p className="summary-value">{stats.bestProduct}</p>
+          <span className="summary-change">{stats.bestSales}개 판매</span>
         </div>
         <div className="summary-card">
-          <h3>신상품</h3>
-          <p className="summary-value">28개</p>
-          <span className="summary-change positive">↑ 이번 달 추가</span>
+          <h3>신상품 판매</h3>
+          <p className="summary-value">{stats.newProducts}개</p>
+          <span className="summary-change positive">최근 3개월</span>
         </div>
       </div>
 
@@ -221,52 +238,8 @@ function ProductAnalytics() {
                 </div>
               ))
             ) : (
-              <div className="stock-alert-list">
-                <div className="stock-alert-item">
-                  <div className="stock-info">
-                    <span className="product-name">린넨 셔츠</span>
-                    <span className="product-option">화이트 / L</span>
-                  </div>
-                  <div className="stock-value">
-                    <span className="critical">재고: 3개</span>
-                  </div>
-                </div>
-                <div className="stock-alert-item">
-                  <div className="stock-info">
-                    <span className="product-name">슬림 진</span>
-                    <span className="product-option">블루 / 30</span>
-                  </div>
-                  <div className="stock-value">
-                    <span className="critical">재고: 5개</span>
-                  </div>
-                </div>
-                <div className="stock-alert-item">
-                  <div className="stock-info">
-                    <span className="product-name">후드 티셔츠</span>
-                    <span className="product-option">블랙 / M</span>
-                  </div>
-                  <div className="stock-value">
-                    <span className="warning">재고: 8개</span>
-                  </div>
-                </div>
-                <div className="stock-alert-item">
-                  <div className="stock-info">
-                    <span className="product-name">맨투맨</span>
-                    <span className="product-option">그레이 / L</span>
-                  </div>
-                  <div className="stock-value">
-                    <span className="warning">재고: 7개</span>
-                  </div>
-                </div>
-                <div className="stock-alert-item">
-                  <div className="stock-info">
-                    <span className="product-name">스니커즈</span>
-                    <span className="product-option">화이트 / 270</span>
-                  </div>
-                  <div className="stock-value">
-                    <span className="warning">재고: 6개</span>
-                  </div>
-                </div>
+              <div className="no-data">
+                <p>재고 부족 상품이 없습니다.</p>
               </div>
             )}
           </div>

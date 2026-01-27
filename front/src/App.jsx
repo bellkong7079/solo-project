@@ -31,7 +31,7 @@ import SalesAnalytics from './pages/SalesAnalytics';
 import ProductAnalytics from './pages/ProductAnalytics';
 import CustomerAnalytics from './pages/CustomerAnalytics';
 import InventoryManagement from './pages/InventoryManagement';
-
+import MembershipBenefits from './pages/MembershipBenefits';
 
 function AppContent() {
   const location = useLocation();
@@ -59,6 +59,7 @@ function AppContent() {
         <Route path="/order-complete/:orderId" element={<OrderCompletePage />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/shipping" element={<ShippingGuide />} />
+        <Route path="/membership-benefits" element={<MembershipBenefits />} />
 
         {/* 관리자 페이지 */}
         <Route path="/admin/login" element={<AdminLoginPage />} />

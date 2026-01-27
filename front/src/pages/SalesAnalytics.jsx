@@ -36,8 +36,13 @@ function SalesAnalytics() {
     monthlySales: [],
     dailySales: [],
     hourlySales: [],
-    weekdaySales: [],
-    monthlyGrowth: []
+    weekdaySales: []
+  });
+  const [stats, setStats] = useState({
+    thisMonthSales: 0,
+    todaySales: 0,
+    avgOrderValue: 0,
+    thisWeekOrders: 0
   });
 
   useEffect(() => {
@@ -58,6 +63,20 @@ function SalesAnalytics() {
       });
       
       setSalesData(response.data);
+      
+      // 통계 계산
+      const thisMonth = response.data.monthlySales?.[response.data.monthlySales.length - 1]?.total || 0;
+      const today = response.data.dailySales?.[response.data.dailySales.length - 1]?.total || 0;
+      const recentOrders = response.data.dailySales?.slice(-7).reduce((sum, d) => sum + d.total, 0) || 0;
+      const weekOrders = response.data.dailySales?.slice(-7).length || 0;
+      
+      setStats({
+        thisMonthSales: thisMonth,
+        todaySales: today,
+        avgOrderValue: weekOrders > 0 ? Math.floor(recentOrders / weekOrders) : 0,
+        thisWeekOrders: response.data.dailySales?.slice(-7).reduce((sum, d) => sum + 1, 0) || 0
+      });
+      
     } catch (error) {
       console.error('매출 데이터 조회 실패:', error);
     } finally {
@@ -67,11 +86,11 @@ function SalesAnalytics() {
 
   // 📈 월별 매출 추이 (12개월)
   const monthlyChartData = {
-    labels: salesData.monthlySales?.map(d => d.month) || ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+    labels: salesData.monthlySales?.map(d => d.month) || [],
     datasets: [
       {
         label: '월별 매출',
-        data: salesData.monthlySales?.map(d => d.total) || [4500000, 5200000, 6100000, 5800000, 7200000, 8500000, 9200000, 8800000, 9500000, 10200000, 11500000, 12800000],
+        data: salesData.monthlySales?.map(d => d.total) || [],
         borderColor: 'rgb(59, 130, 246)',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
         tension: 0.4,
@@ -82,11 +101,11 @@ function SalesAnalytics() {
 
   // 📊 일별 매출 (최근 30일)
   const dailyChartData = {
-    labels: salesData.dailySales?.map(d => d.date) || Array.from({length: 30}, (_, i) => `${i+1}일`),
+    labels: salesData.dailySales?.map(d => d.date) || [],
     datasets: [
       {
         label: '일별 매출',
-        data: salesData.dailySales?.map(d => d.total) || Array.from({length: 30}, () => Math.floor(Math.random() * 500000) + 200000),
+        data: salesData.dailySales?.map(d => d.total) || [],
         backgroundColor: 'rgba(16, 185, 129, 0.8)'
       }
     ]
@@ -94,11 +113,11 @@ function SalesAnalytics() {
 
   // ⏰ 시간대별 주문량
   const hourlyChartData = {
-    labels: ['0시', '3시', '6시', '9시', '12시', '15시', '18시', '21시'],
+    labels: salesData.hourlySales?.map(d => `${d.hour}시`) || [],
     datasets: [
       {
         label: '시간대별 주문 건수',
-        data: salesData.hourlySales?.map(d => d.count) || [5, 2, 8, 45, 89, 123, 156, 98],
+        data: salesData.hourlySales?.map(d => d.count) || [],
         borderColor: 'rgb(245, 158, 11)',
         backgroundColor: 'rgba(245, 158, 11, 0.1)',
         tension: 0.4,
@@ -109,18 +128,18 @@ function SalesAnalytics() {
 
   // 📅 요일별 매출
   const weekdayChartData = {
-    labels: ['월', '화', '수', '목', '금', '토', '일'],
+    labels: ['일', '월', '화', '수', '목', '금', '토'],
     datasets: [
       {
         label: '요일별 평균 매출',
-        data: salesData.weekdaySales?.map(d => d.total) || [850000, 920000, 980000, 1050000, 1200000, 1850000, 1650000],
+        data: salesData.weekdaySales?.map(d => d.total) || [],
         backgroundColor: [
+          'rgba(239, 68, 68, 0.8)',
           'rgba(59, 130, 246, 0.8)',
           'rgba(16, 185, 129, 0.8)',
           'rgba(245, 158, 11, 0.8)',
           'rgba(139, 92, 246, 0.8)',
           'rgba(236, 72, 153, 0.8)',
-          'rgba(239, 68, 68, 0.8)',
           'rgba(251, 146, 60, 0.8)'
         ]
       }
@@ -188,23 +207,23 @@ function SalesAnalytics() {
       <div className="analytics-summary">
         <div className="summary-card">
           <h3>이번 달 매출</h3>
-          <p className="summary-value">12,800,000원</p>
-          <span className="summary-change positive">↑ 11.3%</span>
+          <p className="summary-value">{stats.thisMonthSales.toLocaleString()}원</p>
+          <span className="summary-change">월별 매출</span>
         </div>
         <div className="summary-card">
           <h3>오늘 매출</h3>
-          <p className="summary-value">420,000원</p>
-          <span className="summary-change positive">↑ 5.2%</span>
+          <p className="summary-value">{stats.todaySales.toLocaleString()}원</p>
+          <span className="summary-change">일일 매출</span>
         </div>
         <div className="summary-card">
           <h3>평균 객단가</h3>
-          <p className="summary-value">85,000원</p>
-          <span className="summary-change negative">↓ 2.1%</span>
+          <p className="summary-value">{stats.avgOrderValue.toLocaleString()}원</p>
+          <span className="summary-change">최근 7일 평균</span>
         </div>
         <div className="summary-card">
           <h3>이번 주 주문</h3>
-          <p className="summary-value">148건</p>
-          <span className="summary-change positive">↑ 8.7%</span>
+          <p className="summary-value">{stats.thisWeekOrders}건</p>
+          <span className="summary-change">최근 7일</span>
         </div>
       </div>
 

@@ -323,3 +323,92 @@
     min-width: 160px;
   }
 }
+/* 🆕 등급별 스타일 추가 - Header.css 하단에 추가 */
+
+/* 등급 배지 */
+.tier-badge-dropdown {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.tier-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* 등급별 유저 버튼 색상 */
+.user-menu-btn.tier-vip {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.user-menu-btn.tier-gold {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.user-menu-btn.tier-silver {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  color: #333;
+}
+
+.user-menu-btn.tier-bronze {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  color: #333;
+}
+
+/* 등급별 배지 색상 */
+.tier-badge.tier-vip {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.tier-badge.tier-gold {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);
+}
+
+.tier-badge.tier-silver {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  color: #333;
+  box-shadow: 0 2px 8px rgba(168, 237, 234, 0.3);
+}
+
+.tier-badge.tier-bronze {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  color: #333;
+  box-shadow: 0 2px 8px rgba(252, 182, 159, 0.3);
+}
+
+.tier-badge.tier-normal {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* 등급 버튼 호버 효과 */
+.user-menu-btn.tier-vip:hover {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transform: translateY(-1px);
+}
+
+.user-menu-btn.tier-gold:hover {
+  box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
+  transform: translateY(-1px);
+}
+
+.user-menu-btn.tier-silver:hover {
+  box-shadow: 0 4px 12px rgba(168, 237, 234, 0.4);
+  transform: translateY(-1px);
+}
+
+.user-menu-btn.tier-bronze:hover {
+  box-shadow: 0 4px 12px rgba(252, 182, 159, 0.4);
+  transform: translateY(-1px);
+}

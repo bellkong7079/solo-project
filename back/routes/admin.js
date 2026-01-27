@@ -783,6 +783,286 @@ router.get('/analytics/products', authMiddleware, async (req, res) => {
   }
 });
 
+// 👥 고객 분석 데이터 (admin.js에 추가)
+router.get('/analytics/customers', authMiddleware, async (req, res) => {
+  try {
+    console.log('===== 고객 분석 데이터 요청 =====');
+
+    // 1. 월별 신규 회원
+    const [newCustomers] = await db.query(`
+      SELECT 
+        DATE_FORMAT(created_at, '%m월') as month,
+        COUNT(*) as count
+      FROM users
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+      GROUP BY YEAR(created_at), MONTH(created_at)
+      ORDER BY YEAR(created_at), MONTH(created_at)
+    `);
+
+    // 2. 고객별 구매 빈도 분포
+    const [purchaseFrequency] = await db.query(`
+      SELECT 
+        CASE
+          WHEN order_count = 1 THEN '1회'
+          WHEN order_count = 2 THEN '2회'
+          WHEN order_count BETWEEN 3 AND 5 THEN '3-5회'
+          WHEN order_count BETWEEN 6 AND 10 THEN '6-10회'
+          ELSE '11회 이상'
+        END as frequency,
+        COUNT(*) as count
+      FROM (
+        SELECT user_id, COUNT(*) as order_count
+        FROM orders
+        WHERE status != 'cancelled'
+        GROUP BY user_id
+      ) as user_orders
+      GROUP BY frequency
+      ORDER BY 
+        CASE frequency
+          WHEN '1회' THEN 1
+          WHEN '2회' THEN 2
+          WHEN '3-5회' THEN 3
+          WHEN '6-10회' THEN 4
+          ELSE 5
+        END
+    `);
+
+    // 3. 고객 등급별 매출 (VIP, 골드, 실버, 브론즈, 일반)
+    const [customerTiers] = await db.query(`
+      SELECT 
+        CASE
+          WHEN total_spent >= 1500000 THEN 'VIP'
+          WHEN total_spent >= 800000 THEN '골드'
+          WHEN total_spent >= 400000 THEN '실버'
+          WHEN total_spent >= 200000 THEN '브론즈'
+          ELSE '일반'
+        END as tier,
+        SUM(total_spent) as revenue
+      FROM (
+        SELECT user_id, SUM(total_price) as total_spent
+        FROM orders
+        WHERE status != 'cancelled'
+        GROUP BY user_id
+      ) as user_totals
+      GROUP BY tier
+      ORDER BY 
+        CASE tier
+          WHEN 'VIP' THEN 1
+          WHEN '골드' THEN 2
+          WHEN '실버' THEN 3
+          WHEN '브론즈' THEN 4
+          ELSE 5
+        END
+    `);
+
+    // 4. 월별 평균 구매 금액
+    const [avgOrderValue] = await db.query(`
+      SELECT 
+        DATE_FORMAT(created_at, '%m월') as month,
+        AVG(total_price) as avg
+      FROM orders
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+        AND status != 'cancelled'
+      GROUP BY YEAR(created_at), MONTH(created_at)
+      ORDER BY YEAR(created_at), MONTH(created_at)
+    `);
+
+    // 🆕 5. VIP 고객 Top 10 추가!
+    const [topCustomers] = await db.query(`
+      SELECT 
+        u.name,
+        CASE
+          WHEN total_spent >= 1500000 THEN 'VIP'
+          WHEN total_spent >= 800000 THEN '골드'
+          WHEN total_spent >= 400000 THEN '실버'
+          WHEN total_spent >= 200000 THEN '브론즈'
+          ELSE '일반'
+        END as tier,
+        total_spent as total,
+        order_count as orders,
+        DATE_FORMAT(last_order_date, '%Y-%m-%d') as lastOrder
+      FROM (
+        SELECT 
+          o.user_id,
+          SUM(o.total_price) as total_spent,
+          COUNT(*) as order_count,
+          MAX(o.created_at) as last_order_date
+        FROM orders o
+        WHERE o.status != 'cancelled'
+        GROUP BY o.user_id
+      ) as customer_stats
+      JOIN users u ON customer_stats.user_id = u.user_id
+      ORDER BY total_spent DESC
+      LIMIT 10
+    `);
+
+    res.json({
+      newCustomers,
+      purchaseFrequency,
+      customerTiers,
+      avgOrderValue,
+      topCustomers  // 🆕 추가!
+    });
+
+  } catch (error) {
+    console.error('❌ 고객 분석 데이터 조회 에러:', error);
+    res.status(500).json({ 
+      message: '서버 에러가 발생했습니다.',
+      error: error.message 
+    });
+  }
+});
+// 🆕 분석 API 라우트들 (admin.js에 추가)
+
+// 💰 매출 분석 데이터
+router.get('/analytics/sales', authMiddleware, async (req, res) => {
+  try {
+    console.log('===== 매출 분석 데이터 요청 =====');
+
+    // 1. 월별 매출 (12개월)
+    const [monthlySales] = await db.query(`
+      SELECT 
+        DATE_FORMAT(created_at, '%m월') as month,
+        COALESCE(SUM(total_price), 0) as total
+      FROM orders
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+        AND status != 'cancelled'
+      GROUP BY YEAR(created_at), MONTH(created_at)
+      ORDER BY YEAR(created_at), MONTH(created_at)
+    `);
+
+    // 2. 최근 30일 일별 매출
+    const [dailySales] = await db.query(`
+      SELECT 
+        DATE_FORMAT(created_at, '%m/%d') as date,
+        COALESCE(SUM(total_price), 0) as total
+      FROM orders
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        AND status != 'cancelled'
+      GROUP BY DATE(created_at)
+      ORDER BY DATE(created_at)
+    `);
+
+    // 3. 시간대별 주문량
+    const [hourlySales] = await db.query(`
+      SELECT 
+        HOUR(created_at) as hour,
+        COUNT(*) as count
+      FROM orders
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        AND status != 'cancelled'
+      GROUP BY HOUR(created_at)
+      ORDER BY HOUR(created_at)
+    `);
+
+    // 4. 요일별 평균 매출
+    const [weekdaySales] = await db.query(`
+      SELECT 
+        DAYOFWEEK(created_at) as day,
+        AVG(total_price) as total
+      FROM orders
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 90 DAY)
+        AND status != 'cancelled'
+      GROUP BY DAYOFWEEK(created_at)
+      ORDER BY DAYOFWEEK(created_at)
+    `);
+
+    res.json({
+      monthlySales,
+      dailySales,
+      hourlySales,
+      weekdaySales
+    });
+
+  } catch (error) {
+    console.error('❌ 매출 분석 데이터 조회 에러:', error);
+    res.status(500).json({ 
+      message: '서버 에러가 발생했습니다.',
+      error: error.message 
+    });
+  }
+});
+
+// 📦 상품 분석 데이터
+router.get('/analytics/products', authMiddleware, async (req, res) => {
+  try {
+    console.log('===== 상품 분석 데이터 요청 =====');
+
+    // 1. 상품별 판매 순위 Top 20
+    const [topProducts] = await db.query(`
+      SELECT 
+        p.name,
+        SUM(oi.quantity) as sales
+      FROM order_items oi
+      JOIN products p ON oi.product_id = p.product_id
+      JOIN orders o ON oi.order_id = o.order_id
+      WHERE o.status != 'cancelled'
+        AND o.created_at >= DATE_SUB(NOW(), INTERVAL 90 DAY)
+      GROUP BY oi.product_id, p.name
+      ORDER BY sales DESC
+      LIMIT 20
+    `);
+
+    // 2. 카테고리별 매출
+    const [categoryRevenue] = await db.query(`
+      SELECT 
+        c.name,
+        COALESCE(SUM(oi.price * oi.quantity), 0) as revenue
+      FROM categories c
+      LEFT JOIN products p ON c.category_id = p.category_id
+      LEFT JOIN order_items oi ON p.product_id = oi.product_id
+      LEFT JOIN orders o ON oi.order_id = o.order_id
+      WHERE o.status != 'cancelled' OR o.status IS NULL
+        AND o.created_at >= DATE_SUB(NOW(), INTERVAL 90 DAY)
+      GROUP BY c.category_id, c.name
+      ORDER BY revenue DESC
+    `);
+
+    // 3. 재고 부족 상품
+    const [lowStock] = await db.query(`
+      SELECT 
+        p.name,
+        CONCAT(po.option_name, ': ', po.option_value) as option,
+        po.stock
+      FROM product_options po
+      JOIN products p ON po.product_id = p.product_id
+      WHERE po.stock <= 10
+      ORDER BY po.stock ASC
+      LIMIT 10
+    `);
+
+    // 4. 상품 연령별 판매 (신상품 vs 일반 vs 구상품)
+    const [productPerformance] = await db.query(`
+      SELECT 
+        CASE
+          WHEN DATEDIFF(NOW(), p.created_at) <= 90 THEN 'new'
+          WHEN DATEDIFF(NOW(), p.created_at) <= 365 THEN 'normal'
+          ELSE 'old'
+        END as age_group,
+        SUM(oi.quantity) as sales
+      FROM products p
+      LEFT JOIN order_items oi ON p.product_id = oi.product_id
+      LEFT JOIN orders o ON oi.order_id = o.order_id
+      WHERE o.status != 'cancelled' OR o.status IS NULL
+      GROUP BY age_group
+    `);
+
+    res.json({
+      topProducts,
+      categoryRevenue,
+      lowStock,
+      productPerformance
+    });
+
+  } catch (error) {
+    console.error('❌ 상품 분석 데이터 조회 에러:', error);
+    res.status(500).json({ 
+      message: '서버 에러가 발생했습니다.',
+      error: error.message 
+    });
+  }
+});
+
 // 👥 고객 분석 데이터
 router.get('/analytics/customers', authMiddleware, async (req, res) => {
   try {
@@ -883,7 +1163,7 @@ router.get('/analytics/customers', authMiddleware, async (req, res) => {
   }
 });
 
-// 📦 재고 관리 데이터
+// 📦 재고 관리 데이터 (admin.js에 추가 - 업데이트)
 router.get('/inventory', authMiddleware, async (req, res) => {
   try {
     console.log('===== 재고 관리 데이터 요청 =====');
@@ -938,11 +1218,25 @@ router.get('/inventory', authMiddleware, async (req, res) => {
       GROUP BY speed
     `);
 
-    // 4. 장기 미판매 상품
+    // 4. 🆕 재고 부족 상품 상세 (10개 이하)
+    const [lowStockItems] = await db.query(`
+      SELECT 
+        p.name as product_name,
+        po.option_name,
+        po.option_value,
+        po.stock
+      FROM product_options po
+      JOIN products p ON po.product_id = p.product_id
+      WHERE po.stock <= 10
+      ORDER BY po.stock ASC
+      LIMIT 20
+    `);
+
+    // 5. 장기 미판매 상품
     const [slowMoving] = await db.query(`
       SELECT 
         p.name,
-        CONCAT(po.option_name, ': ', po.option_value) as option,
+        CONCAT(po.option_name, ': ', po.option_value) as \`option\`,
         po.stock,
         MAX(o.created_at) as last_sale_date,
         DATEDIFF(NOW(), MAX(o.created_at)) as days_since_sale
@@ -950,7 +1244,7 @@ router.get('/inventory', authMiddleware, async (req, res) => {
       JOIN product_options po ON p.product_id = po.product_id
       LEFT JOIN order_items oi ON po.option_id = oi.option_id
       LEFT JOIN orders o ON oi.order_id = o.order_id
-      GROUP BY po.option_id
+      GROUP BY po.option_id, p.name, po.option_name, po.option_value, po.stock
       HAVING days_since_sale >= 60 OR days_since_sale IS NULL
       ORDER BY days_since_sale DESC
       LIMIT 10
@@ -960,6 +1254,7 @@ router.get('/inventory', authMiddleware, async (req, res) => {
       stockByCategory,
       stockStatus,
       turnoverRate,
+      lowStockItems,  // 🆕 추가
       slowMoving
     });
 
@@ -971,5 +1266,6 @@ router.get('/inventory', authMiddleware, async (req, res) => {
     });
   }
 });
+
 
 module.exports = router;
