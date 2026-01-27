@@ -53,7 +53,7 @@ function LoginPage() {
     <div className="auth-page">
       <div className="auth-container">
         <h1 className="auth-title">로그인</h1>
-        <p className="auth-subtitle">MINIMAL 쇼핑몰에 오신 것을 환영합니다</p>
+        <p className="auth-subtitle">계절에 오신 것을 환영합니다</p>
 
         {error && <div className="error-message">{error}</div>}
 
