@@ -412,3 +412,284 @@
   box-shadow: 0 4px 12px rgba(252, 182, 159, 0.4);
   transform: translateY(-1px);
 }
+/* 🔍 검색 기능 스타일 - Header.css에 추가 */
+
+.search-container {
+  position: relative;
+  margin-right: 16px;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  border-radius: 24px;
+  padding: 8px 16px;
+  transition: all 0.3s;
+}
+
+.search-input-wrapper:focus-within {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 200px;
+  font-size: 14px;
+  color: #111827;
+  transition: width 0.3s;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.search-input:focus {
+  width: 250px;
+}
+
+.search-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.search-btn:hover {
+  color: #111827;
+}
+
+/* 검색 드롭다운 */
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.search-section {
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.search-section:last-child {
+  border-bottom: none;
+}
+
+.search-section h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.search-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.clear-all-btn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.clear-all-btn:hover {
+  color: #111827;
+}
+
+/* 검색 아이템 */
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+  color: #374151;
+  font-size: 14px;
+}
+
+.search-item:hover {
+  background: #f3f4f6;
+}
+
+.search-item svg {
+  flex-shrink: 0;
+  color: #9ca3af;
+}
+
+.search-item span {
+  flex: 1;
+}
+
+.search-item strong {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+/* 최근 검색어 */
+.search-item.recent {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+}
+
+.search-text {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  color: #374151;
+  font-size: 14px;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: #9ca3af;
+  opacity: 0;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-item.recent:hover .delete-btn {
+  opacity: 1;
+}
+
+.delete-btn:hover {
+  color: #ef4444;
+}
+
+/* 인기 검색어 */
+.popular-searches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.popular-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 16px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.popular-tag:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+.popular-tag .rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: #3b82f6;
+  color: white;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.popular-tag:hover .rank {
+  background: white;
+  color: #3b82f6;
+}
+
+/* 반응형 */
+@media (max-width: 1024px) {
+  .search-input {
+    width: 150px;
+  }
+
+  .search-input:focus {
+    width: 200px;
+  }
+
+  .search-dropdown {
+    width: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-container {
+    order: 4;
+    width: 100%;
+    margin: 12px 0 0 0;
+  }
+
+  .search-input-wrapper {
+    width: 100%;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .search-input:focus {
+    width: 100%;
+  }
+
+  .search-dropdown {
+    width: 100%;
+    left: 0;
+    right: 0;
+  }
+}

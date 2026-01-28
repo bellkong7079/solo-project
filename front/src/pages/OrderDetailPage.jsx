@@ -24,8 +24,13 @@ function OrderDetailPage() {
   const fetchOrderDetail = async () => {
     try {
       const response = await axios.get(`/orders/${orderId}`);
+      
+      // 🔥 수정: order.items에서 읽기
       setOrder(response.data.order);
-      setOrderItems(response.data.items || []);
+      setOrderItems(response.data.order.items || []);  // ← 수정됨!
+      
+      console.log('📦 주문 데이터:', response.data.order);  // 디버깅용
+      console.log('📦 주문 아이템:', response.data.order.items);  // 디버깅용
     } catch (error) {
       console.error('주문 상세 조회 실패:', error);
       if (error.response?.status === 401) {
@@ -66,7 +71,6 @@ function OrderDetailPage() {
     return statusMap[status] || { text: status, class: 'default' };
   };
 
-  // 🆕 주문 취소
   const handleCancelOrder = async () => {
     if (order.status !== 'pending' && order.status !== 'paid') {
       alert('배송 준비 중이거나 배송이 시작된 주문은 취소할 수 없습니다.\n고객센터에 문의해주세요.');
@@ -112,7 +116,6 @@ function OrderDetailPage() {
             돌아가기
           </button>
           <h1>주문 상세</h1>
-          {/* 🆕 취소 가능한 상태일 때만 취소 버튼 표시 */}
           {(order.status === 'pending' || order.status === 'paid') && (
             <button onClick={handleCancelOrder} className="btn btn-cancel-order">
               주문 취소
@@ -145,35 +148,40 @@ function OrderDetailPage() {
           {/* 주문 상품 */}
           <section className="detail-section">
             <h2 className="section-title">주문 상품</h2>
-            <div className="order-items-list">
-              {orderItems.map((item, index) => (
-                <div key={index} className="order-item">
-                  <div className="item-image">
-                    <img 
-                      src={item.thumbnail 
-                        ? `http://192.168.0.219:5000${item.thumbnail}` 
-                        : 'https://via.placeholder.com/100'
-                      } 
-                      alt={item.name}
-                    />
+            {/* 🔥 디버깅 정보 추가 */}
+            {orderItems.length === 0 ? (
+              <p className="no-items">주문 상품 정보를 불러올 수 없습니다.</p>
+            ) : (
+              <div className="order-items-list">
+                {orderItems.map((item, index) => (
+                  <div key={index} className="order-item">
+                    <div className="item-image">
+                      <img 
+                        src={item.thumbnail 
+                          ? `http://192.168.0.219:5000${item.thumbnail}` 
+                          : 'https://via.placeholder.com/100'
+                        } 
+                        alt={item.product_name || item.name}
+                      />
+                    </div>
+                    <div className="item-info">
+                      <Link to={`/products/${item.product_id}`} className="item-name">
+                        {item.product_name || item.name}
+                      </Link>
+                      {item.option_value && (
+                        <p className="item-option">
+                          {item.option_name}: {item.option_value}
+                        </p>
+                      )}
+                      <p className="item-quantity">수량: {item.quantity}개</p>
+                    </div>
+                    <div className="item-price">
+                      {formatPrice(item.price * item.quantity)}원
+                    </div>
                   </div>
-                  <div className="item-info">
-                    <Link to={`/products/${item.product_id}`} className="item-name">
-                      {item.name}
-                    </Link>
-                    {item.option_value && (
-                      <p className="item-option">
-                        {item.option_name}: {item.option_value}
-                      </p>
-                    )}
-                    <p className="item-quantity">수량: {item.quantity}개</p>
-                  </div>
-                  <div className="item-price">
-                    {formatPrice(item.price * item.quantity)}원
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </section>
 
           {/* 배송지 정보 */}

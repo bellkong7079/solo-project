@@ -8,13 +8,16 @@ function ProductListPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('latest');
+  const [searchQuery, setSearchQuery] = useState(''); // 🆕 검색어 state
 
   const category = searchParams.get('category');
   const gender = searchParams.get('gender');
+  const search = searchParams.get('search'); // 🆕 검색 파라미터
 
   useEffect(() => {
+    setSearchQuery(search || ''); // 🆕 검색어 저장
     fetchProducts();
-  }, [category, gender, sortBy]);
+  }, [category, gender, search, sortBy]);
 
   const fetchProducts = async () => {
     try {
@@ -23,6 +26,7 @@ function ProductListPage() {
       
       if (category) params.push(`category=${category}`);
       if (gender) params.push(`gender=${gender}`);
+      if (search) params.push(`search=${encodeURIComponent(search)}`); // 🆕 검색어 추가
       if (sortBy) params.push(`sort=${sortBy}`);
       
       if (params.length > 0) {
@@ -39,6 +43,16 @@ function ProductListPage() {
   };
 
   const getCategoryTitle = () => {
+    // 🆕 검색 모드
+    if (searchQuery) {
+      return (
+        <div className="search-result-header">
+          <h1 className="page-title">'{searchQuery}' 검색 결과</h1>
+          <p className="search-count">{products.length}개의 상품을 찾았습니다</p>
+        </div>
+      );
+    }
+
     // 성별에 따른 타이틀
     if (gender === 'male') return "남성 상품";
     if (gender === 'female') return "여성 상품";
@@ -62,7 +76,12 @@ function ProductListPage() {
     <div className="product-list-page">
       <div className="container">
         <div className="page-header">
-          <h1 className="page-title">{getCategoryTitle()}</h1>
+          {/* 🆕 검색 결과 또는 일반 타이틀 */}
+          {typeof getCategoryTitle() === 'string' ? (
+            <h1 className="page-title">{getCategoryTitle()}</h1>
+          ) : (
+            getCategoryTitle()
+          )}
           
           <div className="filter-bar">
             <div className="result-count">
@@ -84,12 +103,32 @@ function ProductListPage() {
         {products.length === 0 ? (
           <div className="no-products">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <path d="M16 10a4 4 0 0 1-8 0"></path>
+              {searchQuery ? (
+                // 🆕 검색 결과 없을 때
+                <>
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.35-4.35"></path>
+                </>
+              ) : (
+                // 일반 상품 없을 때
+                <>
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </>
+              )}
             </svg>
-            <h3>등록된 상품이 없습니다</h3>
-            <p>관리자 페이지에서 상품을 등록해주세요!</p>
+            {searchQuery ? (
+              <>
+                <h3>'{searchQuery}'에 대한 검색 결과가 없습니다</h3>
+                <p>다른 검색어로 다시 시도해보세요</p>
+              </>
+            ) : (
+              <>
+                <h3>등록된 상품이 없습니다</h3>
+                <p>관리자 페이지에서 상품을 등록해주세요!</p>
+              </>
+            )}
           </div>
         ) : (
           <div className="product-grid">

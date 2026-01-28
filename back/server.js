@@ -3,7 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const http = require('http');
 const { Server } = require('socket.io');
-
+const reviewRoutes = require('./routes/review');
 dotenv.config();
 
 const app = express();
@@ -35,7 +35,7 @@ app.use('/api/cart', require('./routes/cart'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/chat', require('./routes/chat'));
 app.use('/api/categories', require('./routes/categories'));
-
+app.use('/api/reviews', reviewRoutes);
 // 기본 라우트
 app.get('/', async (req, res) => {
   res.json({ message: '패션 쇼핑몰 API 서버' });

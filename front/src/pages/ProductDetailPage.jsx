@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../utils/axios';
 import './ProductDetailPage.css';
-import { useCart } from '../contexts/CartContext'; // ✅ 이미 import 되어 있음
+import { useCart } from '../contexts/CartContext';
+import ReviewForm from '../components/ReviewForm';  // 🆕 추가
+import ReviewList from '../components/ReviewList';  // 🆕 추가
 
 function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useCart(); // ✅ Context에서 addToCart 가져오기
+  const { addToCart } = useCart();
   
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -15,9 +17,21 @@ function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('detail');
+  
+  // 🆕 리뷰 관련 state 추가
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [canReviewData, setCanReviewData] = useState(null);
+  const [reviewListKey, setReviewListKey] = useState(0); // 🔥 리뷰 목록 새로고침용
 
   useEffect(() => {
     fetchProduct();
+  }, [id]);
+
+  // 🆕 리뷰 작성 가능 여부 확인
+  useEffect(() => {
+    if (id) {
+      checkCanReview();
+    }
   }, [id]);
 
   const fetchProduct = async () => {
@@ -25,7 +39,6 @@ function ProductDetailPage() {
       const response = await axios.get(`/products/${id}`);
       setProduct(response.data.product);
       
-      // 첫 번째 옵션 자동 선택
       if (response.data.product.options?.length > 0) {
         setSelectedOption(response.data.product.options[0].option_id);
       }
@@ -38,7 +51,33 @@ function ProductDetailPage() {
     }
   };
 
-  // 🆕 Context의 addToCart 사용으로 수정
+  // 🆕 리뷰 작성 가능 여부 확인 함수
+  const checkCanReview = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const response = await axios.get(
+        `/reviews/can-review/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      if (response.data.canReview) {
+        setCanReviewData(response.data);
+      }
+    } catch (error) {
+      console.error('리뷰 작성 가능 여부 확인 실패:', error);
+    }
+  };
+
+  // 🆕 리뷰 작성 성공 핸들러
+  const handleReviewSuccess = () => {
+    setShowReviewForm(false);
+    setCanReviewData(null);
+    setReviewListKey(prev => prev + 1); // 🔥 리뷰 목록 새로고침!
+  };
+
+  // ✅ 장바구니 담기 (기존 코드 그대로)
   const handleAddToCart = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -52,21 +91,18 @@ function ProductDetailPage() {
       return;
     }
 
-    // 🆕 Context의 addToCart 함수 사용
     const result = await addToCart(product.product_id, selectedOption, quantity);
     
     if (result.success) {
-      // 장바구니 추가 성공 - 헤더의 숫자가 자동으로 업데이트됨!
       if (window.confirm('장바구니에 추가되었습니다. 장바구니로 이동하시겠습니까?')) {
         navigate('/cart');
       }
     } else {
-      // 에러 처리
       alert(result.message);
     }
   };
 
-  // 🆕 바로 구매도 Context 사용
+  // ✅ 바로 구매 (기존 코드 그대로)
   const handleBuyNow = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -80,11 +116,9 @@ function ProductDetailPage() {
       return;
     }
 
-    // 🆕 Context의 addToCart 함수 사용
     const result = await addToCart(product.product_id, selectedOption, quantity);
     
     if (result.success) {
-      // 바로 결제 페이지로 이동
       navigate('/checkout');
     } else {
       alert(result.message);
@@ -255,7 +289,6 @@ function ProductDetailPage() {
             {activeTab === 'detail' && (
               <div className="detail-content">
                 <p>{product.description}</p>
-                {/* 추가 상세 이미지들이 있다면 여기에 표시 */}
               </div>
             )}
 
@@ -276,9 +309,36 @@ function ProductDetailPage() {
               </div>
             )}
 
+            {/* 🆕 리뷰 탭 - 완전히 새로운 내용 */}
             {activeTab === 'review' && (
               <div className="review-content">
-                <p className="no-review">아직 작성된 후기가 없습니다.</p>
+                {/* 리뷰 작성 버튼 */}
+                {canReviewData && !showReviewForm && (
+                  <div className="write-review-container">
+                    <button 
+                      className="write-review-btn"
+                      onClick={() => setShowReviewForm(true)}
+                    >
+                      ✍️ 리뷰 작성하기
+                    </button>
+                    <p className="review-notice">
+                      구매하신 상품에 대한 솔직한 리뷰를 남겨주세요!
+                    </p>
+                  </div>
+                )}
+
+                {/* 리뷰 작성 폼 */}
+                {showReviewForm && canReviewData && (
+                  <ReviewForm
+                    productId={id}
+                    orderId={canReviewData.orderId}
+                    onSuccess={handleReviewSuccess}
+                    onCancel={() => setShowReviewForm(false)}
+                  />
+                )}
+
+                {/* 리뷰 목록 */}
+                <ReviewList key={reviewListKey} productId={id} />
               </div>
             )}
           </div>

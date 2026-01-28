@@ -26,6 +26,21 @@
   margin-bottom: 20px;
 }
 
+/* 🔍 검색 결과 헤더 */
+.search-result-header {
+  margin-bottom: 8px;
+}
+
+.search-result-header .page-title {
+  margin: 0 0 8px 0;
+}
+
+.search-count {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+}
+
 .filter-bar {
   display: flex;
   justify-content: space-between;
@@ -180,12 +195,13 @@
 .no-products h3 {
   font-size: 24px;
   color: #374151;
-  margin-bottom: 10px;
+  margin: 16px 0 8px 0;
 }
 
 .no-products p {
-  color: #9ca3af;
+  color: #6b7280;
   font-size: 15px;
+  margin: 0;
 }
 
 /* 로딩 */

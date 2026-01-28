@@ -370,3 +370,52 @@
     font-size: 24px;
   }
 }
+/* ========================================
+   🆕 리뷰 기능 스타일 추가
+   ProductDetailPage.css 파일 끝에 추가하세요
+   ======================================== */
+
+/* 리뷰 작성 버튼 영역 */
+.write-review-container {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.write-review-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.write-review-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.review-notice {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .write-review-container {
+    padding: 20px;
+  }
+
+  .write-review-btn {
+    width: 100%;
+    padding: 12px;
+  }
+}

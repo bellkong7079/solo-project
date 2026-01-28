@@ -119,7 +119,7 @@ function HomePage() {
         <div className={`season-animation ${season.animation}`}></div>
         
         <div className="hero-content">
-          <h1 className="hero-brand">KIESTSU</h1>
+          <h1 className="hero-brand">KISETSU</h1>
           <p className="hero-season">{season.emoji} {season.text}을 담다..</p>
           <Link to="/products" className="btn btn-primary">
             전체상품

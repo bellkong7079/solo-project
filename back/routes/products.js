@@ -4,6 +4,178 @@ const db = require('../config/database');
 const upload = require('../middlewares/upload');
 const authMiddleware = require('../middlewares/authMiddleware');
 
+// 🔍 검색 자동완성 (GET /products/search-suggestions)
+router.get('/search-suggestions', async (req, res) => {
+  try {
+    const { q } = req.query;
+
+    if (!q || q.trim().length < 2) {
+      return res.json({ suggestions: [] });
+    }
+
+    const [suggestions] = await db.query(`
+      SELECT DISTINCT name
+      FROM products
+      WHERE name LIKE ? AND status = 'active'
+      LIMIT 10
+    `, [`%${q}%`]);
+
+    const suggestionList = suggestions.map(s => s.name);
+
+    res.json({ suggestions: suggestionList });
+
+  } catch (error) {
+    console.error('검색 자동완성 에러:', error);
+    res.status(500).json({ 
+      message: '서버 에러가 발생했습니다.',
+      suggestions: []
+    });
+  }
+});
+
+// 🔍 인기 검색어 (GET /products/popular-searches)
+router.get('/popular-searches', async (req, res) => {
+  try {
+    // 최근 7일간 가장 많이 판매된 상품명
+    const [popular] = await db.query(`
+      SELECT p.name, COUNT(oi.order_item_id) as order_count
+      FROM products p
+      JOIN order_items oi ON p.product_id = oi.product_id
+      JOIN orders o ON oi.order_id = o.order_id
+      WHERE o.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        AND o.status != 'cancelled'
+      GROUP BY p.name
+      ORDER BY order_count DESC
+      LIMIT 5
+    `);
+
+    // 상품명에서 키워드 추출 (공백 기준 첫 단어)
+    const searches = popular.map(p => {
+      const words = p.name.split(' ');
+      return words[0];
+    });
+
+    // 중복 제거
+    const uniqueSearches = [...new Set(searches)];
+
+    // 부족하면 카테고리명으로 채우기
+    if (uniqueSearches.length < 5) {
+      const [categories] = await db.query(`
+        SELECT name FROM categories 
+        WHERE parent_id IS NOT NULL AND is_active = 1
+        LIMIT ${5 - uniqueSearches.length}
+      `);
+      categories.forEach(c => uniqueSearches.push(c.name));
+    }
+
+    res.json({ searches: uniqueSearches.slice(0, 5) });
+
+  } catch (error) {
+    console.error('인기 검색어 조회 에러:', error);
+    // 기본 인기 검색어 반환
+    res.json({ 
+      searches: ['셔츠', '청바지', '스니커즈', '가디건', '코트']
+    });
+  }
+});
+
+// 기존 상품 목록 조회 (/products) - 검색 기능 추가
+router.get('/', async (req, res) => {
+  try {
+    const { category_id, category, gender, search, sort } = req.query;
+    
+    let query = `
+      SELECT 
+        p.*,
+        c.name as category_name,
+        (SELECT image_url FROM product_images WHERE product_id = p.product_id AND is_thumbnail = 1 LIMIT 1) as thumbnail
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.category_id
+      WHERE p.status = 'active'
+    `;
+    
+    const params = [];
+
+    // 성별 필터
+    if (gender && ['male', 'female', 'unisex'].includes(gender)) {
+      query += ' AND p.gender = ?';
+      params.push(gender);
+    }
+
+    // category_id로 필터링
+    if (category_id) {
+      query += ' AND p.category_id = ?';
+      params.push(category_id);
+    }
+    // category slug로 필터링
+    else if (category) {
+      const [categories] = await db.query(
+        'SELECT category_id FROM categories WHERE slug = ? AND is_active = 1',
+        [category]
+      );
+      
+      if (categories.length > 0) {
+        const categoryId = categories[0].category_id;
+        
+        const [childCategories] = await db.query(
+          'SELECT category_id FROM categories WHERE parent_id = ? AND is_active = 1',
+          [categoryId]
+        );
+        
+        if (childCategories.length > 0) {
+          const categoryIds = [categoryId, ...childCategories.map(c => c.category_id)];
+          query += ` AND p.category_id IN (${categoryIds.map(() => '?').join(',')})`;
+          params.push(...categoryIds);
+        } else {
+          query += ' AND p.category_id = ?';
+          params.push(categoryId);
+        }
+      }
+    }
+
+    // 🔍 검색어 필터 (이름, 설명, 카테고리명)
+    if (search && search.trim().length >= 2) {
+      query += ` AND (
+        p.name LIKE ? OR
+        p.description LIKE ? OR
+        c.name LIKE ?
+      )`;
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    }
+
+    // 정렬
+    if (sort === 'price_asc') {
+      query += ' ORDER BY p.price ASC';
+    } else if (sort === 'price_desc') {
+      query += ' ORDER BY p.price DESC';
+    } else if (search) {
+      // 검색 시: 관련도순 정렬
+      query += ` ORDER BY
+        CASE 
+          WHEN p.name LIKE ? THEN 1
+          WHEN p.name LIKE ? THEN 2
+          ELSE 3
+        END,
+        p.created_at DESC`;
+      params.push(`${search}%`, `%${search}%`);
+    } else {
+      query += ' ORDER BY p.created_at DESC';
+    }
+
+    const [products] = await db.query(query, params);
+
+    res.json({ 
+      products,
+      total: products.length,
+      searchQuery: search || null
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+  }
+});
+
 // 상품 목록 조회 (사용자용)
 router.get('/', async (req, res) => {
   try {
