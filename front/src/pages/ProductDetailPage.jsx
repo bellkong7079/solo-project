@@ -71,10 +71,17 @@ function ProductDetailPage() {
   };
 
   // 🆕 리뷰 작성 성공 핸들러
-  const handleReviewSuccess = () => {
+  const handleReviewSuccess = async () => {
     setShowReviewForm(false);
-    setCanReviewData(null);
     setReviewListKey(prev => prev + 1); // 🔥 리뷰 목록 새로고침!
+    
+    // 🔥 버튼 즉시 숨김
+    setCanReviewData(null);
+    
+    // 🔥 DB 커밋 완료를 기다린 후 체크 (1초 딜레이)
+    setTimeout(() => {
+      checkCanReview();
+    }, 1000);
   };
 
   // ✅ 장바구니 담기 (기존 코드 그대로)
