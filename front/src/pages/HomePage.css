@@ -109,7 +109,7 @@
 
 /* 히어로 섹션 */
 .hero {
-  height: 500px;
+  height: 600px; /* 500px → 600px */
   /* background-color는 인라인 스타일로 동적 적용 */
   display: flex;
   align-items: center;
@@ -608,7 +608,7 @@
 
 @media (max-width: 480px) {
   .hero {
-    height: 400px;
+    height: 500px; /* 400px → 500px */
   }
 
   .hero-brand {
@@ -641,5 +641,155 @@
   
   .season-text {
     font-size: 18px;
+  }
+}
+
+/* ========== 🆕 슬라이더 스타일 (맨 아래 추가) ========== */
+
+.main-slider-wrapper {
+  width: 100%;
+  margin-bottom: 60px;
+  position: relative;
+}
+
+.hero-slide {
+  width: 100%;
+  height: 600px; /* 500px → 600px */
+  position: relative;
+  overflow: hidden;
+}
+
+/* 슬라이드 1: 광고 영상 (중앙 정렬) */
+.video-slide {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.slider-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* 슬라이드 2: 계절 히어로 */
+.hero-slide .hero {
+  height: 600px; /* 500px → 600px */
+  margin: 0;
+}
+
+/* Slick 커스터마이징 */
+.main-slider-wrapper .slick-dots {
+  bottom: 30px;
+  z-index: 10;
+}
+
+.main-slider-wrapper .slick-dots li button:before {
+  font-size: 12px;
+  color: white;
+  opacity: 0.5;
+}
+
+.main-slider-wrapper .slick-dots li.slick-active button:before {
+  color: white;
+  opacity: 1;
+}
+
+.main-slider-wrapper .slick-prev,
+.main-slider-wrapper .slick-next {
+  z-index: 10;
+  width: 50px;
+  height: 50px;
+}
+
+.main-slider-wrapper .slick-prev {
+  left: 30px;
+}
+
+.main-slider-wrapper .slick-next {
+  right: 30px;
+}
+
+.main-slider-wrapper .slick-prev:before,
+.main-slider-wrapper .slick-next:before {
+  font-size: 40px;
+  opacity: 0.7;
+}
+
+.main-slider-wrapper .slick-prev:hover:before,
+.main-slider-wrapper .slick-next:hover:before {
+  opacity: 1;
+}
+
+.main-slider-wrapper .slick-list {
+  width: 100%;
+  height: 100%;
+}
+
+.main-slider-wrapper .slick-track {
+  display: flex;
+  align-items: center;
+}
+
+.main-slider-wrapper .slick-slide {
+  height: 600px; /* 500px → 600px */
+}
+
+.main-slider-wrapper .slick-slide > div {
+  height: 100%;
+}
+
+/* 슬라이더 반응형 */
+@media (max-width: 768px) {
+  .hero-slide {
+    height: 500px; /* 400px → 500px */
+  }
+
+  .hero-slide .hero {
+    height: 500px; /* 400px → 500px */
+  }
+
+  .main-slider-wrapper .slick-slide {
+    height: 500px; /* 400px → 500px */
+  }
+
+  .main-slider-wrapper .slick-prev,
+  .main-slider-wrapper .slick-next {
+    width: 40px;
+    height: 40px;
+  }
+
+  .main-slider-wrapper .slick-prev {
+    left: 10px;
+  }
+
+  .main-slider-wrapper .slick-next {
+    right: 10px;
+  }
+
+  .main-slider-wrapper .slick-prev:before,
+  .main-slider-wrapper .slick-next:before {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-slide {
+    height: 400px; /* 300px → 400px */
+  }
+
+  .hero-slide .hero {
+    height: 400px; /* 300px → 400px */
+  }
+
+  .main-slider-wrapper .slick-slide {
+    height: 400px; /* 300px → 400px */
   }
 }

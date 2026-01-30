@@ -1,16 +1,24 @@
+// front/src/pages/HomePage.jsx (수정 버전!)
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from '../utils/axios';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 import './HomePage.css';
 
 function HomePage() {
-  const [showSeasonIntro, setShowSeasonIntro] = useState(true); // 🆕 인트로 상태
+  const [showSeasonIntro, setShowSeasonIntro] = useState(true);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🆕 현재 계절 가져오기
+  // ⚠️ 광고 영상 URL 설정
+  const videoUrl = '/videos/ad-video.mp4'; // public/videos/ 폴더에 영상 넣기
+
+  // 현재 계절 가져오기
   const getCurrentSeason = () => {
-    const month = new Date().getMonth() + 1; // 1-12
+    const month = new Date().getMonth() + 1;
     
     if (month >= 3 && month <= 5) {
       return { 
@@ -18,12 +26,12 @@ function HomePage() {
         text: '봄', 
         emoji: '🌸',
         colors: {
-          primary: '#FFB6C1',      // 파스텔 핑크
-          secondary: '#90EE90',    // 연한 초록
+          primary: '#FFB6C1',
+          secondary: '#90EE90',
           gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
           introBg: 'linear-gradient(135deg, #FFB6C1 0%, #FFA07A 100%)'
         },
-        animation: 'cherry-blossoms' // 벚꽃 애니메이션
+        animation: 'cherry-blossoms'
       };
     }
     
@@ -33,12 +41,12 @@ function HomePage() {
         text: '여름', 
         emoji: '☀️',
         colors: {
-          primary: '#87CEEB',      // 하늘색
-          secondary: '#FFD700',    // 밝은 노랑
+          primary: '#87CEEB',
+          secondary: '#FFD700',
           gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
           introBg: 'linear-gradient(135deg, #56CCF2 0%, #2F80ED 100%)'
         },
-        animation: 'waves' // 파도 애니메이션
+        animation: 'waves'
       };
     }
     
@@ -48,12 +56,12 @@ function HomePage() {
         text: '가을', 
         emoji: '🍂',
         colors: {
-          primary: '#D2691E',      // 오렌지 브라운
-          secondary: '#800000',    // 버건디
+          primary: '#D2691E',
+          secondary: '#800000',
           gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
           introBg: 'linear-gradient(135deg, #D2691E 0%, #8B4513 100%)'
         },
-        animation: 'falling-leaves' // 낙엽 애니메이션
+        animation: 'falling-leaves'
       };
     }
     
@@ -62,18 +70,18 @@ function HomePage() {
       text: '겨울', 
       emoji: '❄',
       colors: {
-        primary: '#ADD8E6',      // 아이스 블루
-        secondary: '#C0C0C0',    // 실버
+        primary: '#ADD8E6',
+        secondary: '#C0C0C0',
         gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
         introBg: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
       },
-      animation: 'snowfall' // 눈 내리는 애니메이션
+      animation: 'snowfall'
     };
   };
 
   const season = getCurrentSeason();
 
-  // 🆕 3.5초 후 인트로 숨기기
+  // 3.5초 후 인트로 숨기기
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSeasonIntro(false);
@@ -89,7 +97,6 @@ function HomePage() {
   const fetchFeaturedProducts = async () => {
     try {
       const response = await axios.get('/products?sort=latest');
-      // 최신 상품 4개만 가져오기
       setFeaturedProducts(response.data.products.slice(0, 4));
     } catch (error) {
       console.error('상품 조회 실패:', error);
@@ -98,9 +105,23 @@ function HomePage() {
     }
   };
 
+  // 슬라이더 설정
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 1000,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    fade: true,
+    pauseOnHover: true,
+    arrows: true,
+  };
+
   return (
     <div className="homepage">
-      {/* 🆕 KISTSU 브랜드 인트로 */}
+      {/* 계절 인트로 (3.5초) */}
       {showSeasonIntro && (
         <div className="season-intro" style={{ background: season.colors.introBg }}>
           <div className="season-content">
@@ -113,21 +134,47 @@ function HomePage() {
         </div>
       )}
 
-      {/* 히어로 섹션 */}
-      <section className={`hero season-${season.name}`} style={{ background: season.colors.gradient }}>
-        {/* 🆕 계절별 배경 애니메이션 */}
-        <div className={`season-animation ${season.animation}`}></div>
-        
-        <div className="hero-content">
-          <h1 className="hero-brand">KISETSU</h1>
-          <p className="hero-season">{season.emoji} {season.text}을 담다..</p>
-          <Link to="/products" className="btn btn-primary">
-            전체상품
-          </Link>
-        </div>
-      </section>
+      {/* 슬라이더 섹션 (인트로 후 표시) */}
+      {!showSeasonIntro && (
+        <div className="main-slider-wrapper">
+          <Slider {...sliderSettings}>
+            {/* 슬라이드 1: 광고 영상 (버튼 없음!) */}
+            <div className="hero-slide">
+              <div className="video-slide">
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="slider-video"
+                >
+                  <source src={videoUrl} type="video/mp4" />
+                  브라우저가 비디오를 지원하지 않습니다.
+                </video>
+              </div>
+            </div>
 
-      {/* 카테고리 섹션 - ⭐ 수정 */}
+            {/* 슬라이드 2: 계절 히어로 배너 */}
+            <div className="hero-slide">
+              <section 
+                className={`hero season-${season.name}`} 
+                style={{ background: season.colors.gradient }}
+              >
+                <div className={`season-animation ${season.animation}`}></div>
+                <div className="hero-content">
+                  <h1 className="hero-brand">KISETSU</h1>
+                  <p className="hero-season">{season.emoji} {season.text}을 담다..</p>
+                  <Link to="/products" className="btn btn-primary">
+                    전체상품
+                  </Link>
+                </div>
+              </section>
+            </div>
+          </Slider>
+        </div>
+      )}
+
+      {/* 카테고리 섹션 */}
       <section className="categories">
         <div className="container">
           <div className="category-grid">

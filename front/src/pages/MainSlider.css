@@ -1,0 +1,473 @@
+/* front/src/components/MainSlider.css */
+
+.main-slider-container {
+  width: 100%;
+  height: 500px;
+  position: relative;
+  overflow: hidden;
+}
+
+.slide {
+  width: 100%;
+  height: 500px;
+  position: relative;
+}
+
+/* ===== 슬라이드 1: 광고 영상 ===== */
+.video-slide {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #000;
+}
+
+.slider-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.cta-button {
+  padding: 16px 40px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+.cta-button:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(59, 130, 246, 0.5);
+}
+
+/* ===== 슬라이드 2: KISETSU 배너 (기존) ===== */
+.intro-slide {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 눈 내리는 효과 */
+.snow-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.snowflake {
+  position: absolute;
+  top: -50px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 30px;
+  animation: fall linear infinite;
+}
+
+.snowflake:nth-child(1) {
+  left: 10%;
+  animation-duration: 8s;
+  animation-delay: 0s;
+}
+
+.snowflake:nth-child(2) {
+  left: 30%;
+  animation-duration: 10s;
+  animation-delay: 2s;
+  font-size: 25px;
+}
+
+.snowflake:nth-child(3) {
+  left: 50%;
+  animation-duration: 12s;
+  animation-delay: 4s;
+}
+
+.snowflake:nth-child(4) {
+  left: 70%;
+  animation-duration: 9s;
+  animation-delay: 1s;
+  font-size: 28px;
+}
+
+.snowflake:nth-child(5) {
+  left: 85%;
+  animation-duration: 11s;
+  animation-delay: 3s;
+}
+
+.snowflake:nth-child(6) {
+  left: 20%;
+  animation-duration: 10s;
+  animation-delay: 5s;
+  font-size: 22px;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(550px);
+  }
+}
+
+.main-title {
+  font-size: 80px;
+  font-weight: 900;
+  color: white;
+  text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+  letter-spacing: 8px;
+  margin-bottom: 20px;
+  animation: fadeInUp 1s ease-out;
+  z-index: 1;
+}
+
+.subtitle {
+  font-size: 24px;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  margin-bottom: 40px;
+  animation: fadeInUp 1s ease-out 0.3s both;
+  z-index: 1;
+}
+
+.shop-button {
+  padding: 15px 50px;
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  animation: fadeInUp 1s ease-out 0.6s both;
+  z-index: 1;
+  backdrop-filter: blur(10px);
+}
+
+.shop-button:hover {
+  background: rgba(59, 130, 246, 1);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== 슬라이드 3: 프로모션 배너 ===== */
+.promo-slide {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.promo-slide h2 {
+  font-size: 48px;
+  color: white;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.promo-slide p {
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 30px;
+}
+
+/* ===== Slick 커스터마이징 ===== */
+
+/* 점(dots) 스타일 */
+.main-slider-container .slick-dots {
+  bottom: 30px;
+}
+
+.main-slider-container .slick-dots li button:before {
+  font-size: 12px;
+  color: white;
+  opacity: 0.5;
+}
+
+.main-slider-container .slick-dots li.slick-active button:before {
+  color: white;
+  opacity: 1;
+}
+
+/* 화살표 스타일 */
+.main-slider-container .slick-prev,
+.main-slider-container .slick-next {
+  z-index: 10;
+  width: 50px;
+  height: 50px;
+}
+
+.main-slider-container .slick-prev {
+  left: 30px;
+}
+
+.main-slider-container .slick-next {
+  right: 30px;
+}
+
+.main-slider-container .slick-prev:before,
+.main-slider-container .slick-next:before {
+  font-size: 40px;
+  opacity: 0.7;
+}
+
+.main-slider-container .slick-prev:hover:before,
+.main-slider-container .slick-next:hover:before {
+  opacity: 1;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 768px) {
+  .main-slider-container {
+    height: 400px;
+  }
+
+  .slide {
+    height: 400px;
+  }
+
+  .main-title {
+    font-size: 48px;
+    letter-spacing: 4px;
+  }
+
+  .subtitle {
+    font-size: 18px;
+  }
+
+  .shop-button,
+  .cta-button {
+    padding: 12px 30px;
+    font-size: 16px;
+  }
+
+  .promo-slide h2 {
+    font-size: 32px;
+  }
+
+  .promo-slide p {
+    font-size: 16px;
+  }
+
+  .main-slider-container .slick-prev,
+  .main-slider-container .slick-next {
+    width: 40px;
+    height: 40px;
+  }
+
+  .main-slider-container .slick-prev {
+    left: 10px;
+  }
+
+  .main-slider-container .slick-next {
+    right: 10px;
+  }
+}   
+/* front/src/pages/HomePage.css (기존 파일 맨 아래에 추가!) */
+
+/* ===== 🆕 슬라이더 스타일 추가 ===== */
+
+.main-slider-wrapper {
+  width: 100%;
+  margin-bottom: 60px;
+}
+
+.hero-slide {
+  width: 100%;
+  height: 500px;
+}
+
+/* 슬라이드 1: 광고 영상 */
+.video-slide {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #000;
+}
+
+.slider-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.cta-button {
+  padding: 16px 40px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+.cta-button:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(59, 130, 246, 0.5);
+}
+
+/* 슬라이드 2: 계절 히어로 (기존 hero 스타일 재사용) */
+.hero-slide .hero {
+  height: 500px;
+  margin: 0;
+}
+
+/* 슬라이드 3: 프로모션 */
+.promo-slide {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.promo-slide h2 {
+  font-size: 48px;
+  color: white;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.promo-slide p {
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 30px;
+}
+
+/* Slick 커스터마이징 */
+.main-slider-wrapper .slick-dots {
+  bottom: 30px;
+}
+
+.main-slider-wrapper .slick-dots li button:before {
+  font-size: 12px;
+  color: white;
+  opacity: 0.5;
+}
+
+.main-slider-wrapper .slick-dots li.slick-active button:before {
+  color: white;
+  opacity: 1;
+}
+
+.main-slider-wrapper .slick-prev,
+.main-slider-wrapper .slick-next {
+  z-index: 10;
+  width: 50px;
+  height: 50px;
+}
+
+.main-slider-wrapper .slick-prev {
+  left: 30px;
+}
+
+.main-slider-wrapper .slick-next {
+  right: 30px;
+}
+
+.main-slider-wrapper .slick-prev:before,
+.main-slider-wrapper .slick-next:before {
+  font-size: 40px;
+  opacity: 0.7;
+}
+
+.main-slider-wrapper .slick-prev:hover:before,
+.main-slider-wrapper .slick-next:hover:before {
+  opacity: 1;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .hero-slide {
+    height: 400px;
+  }
+
+  .hero-slide .hero {
+    height: 400px;
+  }
+
+  .promo-slide h2 {
+    font-size: 32px;
+  }
+
+  .promo-slide p {
+    font-size: 16px;
+  }
+
+  .cta-button {
+    padding: 12px 30px;
+    font-size: 16px;
+  }
+
+  .main-slider-wrapper .slick-prev,
+  .main-slider-wrapper .slick-next {
+    width: 40px;
+    height: 40px;
+  }
+
+  .main-slider-wrapper .slick-prev {
+    left: 10px;
+  }
+
+  .main-slider-wrapper .slick-next {
+    right: 10px;
+  }
+}
