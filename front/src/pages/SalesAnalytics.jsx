@@ -58,7 +58,7 @@ function SalesAnalytics() {
 
   const fetchSalesData = async (token) => {
     try {
-      const response = await axios.get('http://192.168.0.219:5000/api/admin/analytics/sales', {
+      const response = await axios.get('http://192.168.0.225:5000/api/admin/analytics/sales', {
         headers: { Authorization: `Bearer ${token}` }
       });
       

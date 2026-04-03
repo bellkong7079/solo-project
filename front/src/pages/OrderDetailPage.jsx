@@ -158,7 +158,7 @@ function OrderDetailPage() {
                     <div className="item-image">
                       <img 
                         src={item.thumbnail 
-                          ? `http://192.168.0.219:5000${item.thumbnail}` 
+                          ? `http://192.168.0.225:5000${item.thumbnail}` 
                           : 'https://via.placeholder.com/100'
                         } 
                         alt={item.product_name || item.name}

@@ -6,7 +6,7 @@ import axios from 'axios';
 import './AdminChatPage.css';
 import AdminLayout from '../components/AdminLayout';
 
-const SOCKET_URL = 'http://192.168.0.219:5000';
+const SOCKET_URL = 'http://192.168.0.225:5000';
 
 function AdminChatPage() {
   const navigate = useNavigate();
@@ -17,6 +17,7 @@ function AdminChatPage() {
   const [loading, setLoading] = useState(true);
   const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   
   // 🆕 모달 관련 state
   const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -31,7 +32,7 @@ function AdminChatPage() {
       navigate('/admin/login');
       return;
     }
-    
+
     // 소켓 연결
     const newSocket = io(SOCKET_URL);
     setSocket(newSocket);
@@ -39,6 +40,12 @@ function AdminChatPage() {
     newSocket.on('admin_new_chat', () => {
       fetchRooms();
     });
+
+    // 새로고침 후 이전 선택 방 복원
+    const savedRoom = sessionStorage.getItem('selectedChatRoom');
+    if (savedRoom) {
+      setSelectedRoom(JSON.parse(savedRoom));
+    }
 
     fetchRooms();
 
@@ -73,12 +80,12 @@ function AdminChatPage() {
   }, [selectedRoom, socket]);
 
   useEffect(() => {
-    scrollToBottom();
+    setTimeout(() => {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      }
+    }, 50);
   }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   const fetchRooms = async () => {
     try {
@@ -182,6 +189,7 @@ function AdminChatPage() {
       if (selectedRoom?.room_id === roomId) {
         setSelectedRoom(null);
         setMessages([]);
+        sessionStorage.removeItem('selectedChatRoom');
       }
     } catch (error) {
       console.error('채팅 종료 실패:', error);
@@ -259,7 +267,11 @@ function AdminChatPage() {
                 <div
                   key={room.room_id}
                   className={`room-item ${selectedRoom?.room_id === room.room_id ? 'active' : ''} ${room.status}`}
-                  onClick={() => setSelectedRoom(room)}
+                  onClick={() => {
+                    setMessages([]);
+                    setSelectedRoom(room);
+                    sessionStorage.setItem('selectedChatRoom', JSON.stringify(room));
+                  }}
                 >
                   <div className="room-avatar">
                     {room.user_name?.charAt(0) || '?'}
@@ -321,7 +333,7 @@ function AdminChatPage() {
                 </div>
               </div>
 
-              <div className="chat-messages">
+              <div className="chat-messages" ref={messagesContainerRef}>
                 {messages.length === 0 ? (
                   <div className="no-messages">
                     <p>대화를 시작해보세요!</p>

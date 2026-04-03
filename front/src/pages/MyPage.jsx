@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './MyPage.css';
 
-const API_URL = 'http://192.168.0.219:5000/api';
+const API_URL = 'http://192.168.0.225:5000/api';
 
 function MyPage() {
   const navigate = useNavigate();

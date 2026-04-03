@@ -54,7 +54,7 @@ function InventoryManagement() {
 
   const fetchInventoryData = async (token) => {
     try {
-      const response = await axios.get('http://192.168.0.219:5000/api/admin/inventory', {
+      const response = await axios.get('http://192.168.0.225:5000/api/admin/inventory', {
         headers: { Authorization: `Bearer ${token}` }
       });
       

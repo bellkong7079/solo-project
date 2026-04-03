@@ -61,7 +61,7 @@ function CustomerAnalytics() {
 
   const fetchCustomerData = async (token) => {
     try {
-      const response = await axios.get('http://192.168.0.219:5000/api/admin/analytics/customers', {
+      const response = await axios.get('http://192.168.0.225:5000/api/admin/analytics/customers', {
         headers: { Authorization: `Bearer ${token}` }
       });
       

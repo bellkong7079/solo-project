@@ -223,7 +223,7 @@ function HomePage() {
                   <div className="product-image">
                     <img 
                       src={product.thumbnail 
-                        ? `http://192.168.0.219:5000${product.thumbnail}`
+                        ? `http://192.168.0.225:5000${product.thumbnail}`
                         : 'https://via.placeholder.com/400'
                       } 
                       alt={product.name} 

@@ -63,7 +63,7 @@ function AdminDashboard() {
     try {
       console.log('대시보드 통계 요청 중...');
       
-      const response = await axios.get('http://192.168.0.219:5000/api/admin/dashboard/stats', {
+      const response = await axios.get('http://192.168.0.225:5000/api/admin/dashboard/stats', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -93,7 +93,7 @@ function AdminDashboard() {
   // 🆕 차트 데이터 가져오기
   const fetchChartData = async (token) => {
     try {
-      const response = await axios.get('http://192.168.0.219:5000/api/admin/dashboard/charts', {
+      const response = await axios.get('http://192.168.0.225:5000/api/admin/dashboard/charts', {
         headers: { Authorization: `Bearer ${token}` }
       });
       

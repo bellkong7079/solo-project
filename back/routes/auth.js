@@ -19,4 +19,8 @@ router.put('/me', authUser, authController.updateProfile);
 // 🆕 회원 탈퇴
 router.delete('/me', authUser, authController.deleteAccount);
 
+// 비밀번호 찾기
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/reset-password', authController.resetPassword);
+
 module.exports = router;

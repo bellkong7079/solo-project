@@ -32,6 +32,8 @@ import ProductAnalytics from './pages/ProductAnalytics';
 import CustomerAnalytics from './pages/CustomerAnalytics';
 import InventoryManagement from './pages/InventoryManagement';
 import MembershipBenefits from './pages/MembershipBenefits';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function AppContent() {
   const location = useLocation();
@@ -60,6 +62,8 @@ function AppContent() {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/shipping" element={<ShippingGuide />} />
         <Route path="/membership-benefits" element={<MembershipBenefits />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         {/* 관리자 페이지 */}
         <Route path="/admin/login" element={<AdminLoginPage />} />

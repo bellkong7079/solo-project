@@ -5,7 +5,7 @@ import axios from 'axios';
 import AdminLayout from '../components/AdminLayout';
 import './AdminUserList.css';
 
-const API_URL = 'http://192.168.0.219:5000/api';
+const API_URL = 'http://192.168.0.225:5000/api';
 
 function AdminUserList() {
   const navigate = useNavigate();

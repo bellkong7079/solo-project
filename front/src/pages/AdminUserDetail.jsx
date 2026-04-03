@@ -5,7 +5,7 @@ import axios from 'axios';
 import AdminLayout from '../components/AdminLayout';
 import './AdminUserDetail.css';
 
-const API_URL = 'http://192.168.0.219:5000/api';
+const API_URL = 'http://192.168.0.225:5000/api';
 
 function AdminUserDetail() {
   const navigate = useNavigate();
@@ -156,7 +156,7 @@ function AdminUserDetail() {
                       <div key={item.order_item_id} className="order-item">
                         <div className="item-image">
                           {item.product_image ? (
-                            <img src={`http://192.168.0.219:5000${item.product_image}`} alt={item.product_name} />
+                            <img src={`http://192.168.0.225:5000${item.product_image}`} alt={item.product_name} />
                           ) : (
                             <div className="no-image">No Image</div>
                           )}
@@ -197,7 +197,7 @@ function AdminUserDetail() {
                   <div key={product.product_id} className="product-card">
                     <div className="product-image">
                       {product.product_image ? (
-                        <img src={`http://192.168.0.219:5000${product.product_image}`} alt={product.name} />
+                        <img src={`http://192.168.0.225:5000${product.product_image}`} alt={product.name} />
                       ) : (
                         <div className="no-image">No Image</div>
                       )}

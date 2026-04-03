@@ -54,7 +54,7 @@ function ProductAnalytics() {
 
   const fetchProductData = async (token) => {
     try {
-      const response = await axios.get('http://192.168.0.219:5000/api/admin/analytics/products', {
+      const response = await axios.get('http://192.168.0.225:5000/api/admin/analytics/products', {
         headers: { Authorization: `Bearer ${token}` }
       });
       

@@ -61,7 +61,7 @@ const SignupPage = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post('http://192.168.0.219:5000/api/auth/register', {
+      const res = await axios.post('http://192.168.0.225:5000/api/auth/register', {
         name: form.name,
         email: form.email,
         password: form.password,

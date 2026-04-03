@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ReviewList.css';
 
-const API_URL = 'http://192.168.0.219:5000/api';
+const API_URL = 'http://192.168.0.225:5000/api';
 
 function ReviewList({ productId }) {
   const [reviews, setReviews] = useState([]);

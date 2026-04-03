@@ -1,5 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 const db = require('../config/database');
 
 // 회원가입
@@ -241,6 +243,121 @@ exports.updateProfile = async (req, res) => {
 
   } catch (error) {
     console.error('회원정보 수정 에러:', error);
+    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+  }
+};
+
+// 비밀번호 찾기 - 이메일 전송
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    console.log('1. 요청 이메일:', email);
+
+    const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    console.log('2. 유저 조회 완료. 찾은 수:', users.length);
+
+    if (users.length === 0) {
+      return res.json({ message: '입력하신 이메일로 재설정 링크를 전송했습니다.' });
+    }
+
+    const user = users[0];
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+
+    console.log('3. 토큰 생성 완료');
+
+    await db.query('DELETE FROM password_reset_tokens WHERE user_id = ?', [user.user_id]);
+    console.log('4. 기존 토큰 삭제 완료');
+
+    await db.query(
+      'INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)',
+      [user.user_id, token, expiresAt]
+    );
+    console.log('5. 새 토큰 저장 완료');
+
+    const resetLink = `http://192.168.0.225:5173/reset-password?token=${token}`;
+
+    // 이메일 전송 시도, 실패해도 링크는 콘솔에 출력
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        }
+      });
+
+      await transporter.sendMail({
+        from: `"계절 쇼핑몰" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: '[계절] 비밀번호 재설정 안내',
+        html: `
+          <div style="max-width:500px;margin:0 auto;font-family:sans-serif;">
+            <h2 style="color:#1a1a1a;">비밀번호 재설정</h2>
+            <p>안녕하세요, <strong>${user.name}</strong>님.</p>
+            <p>비밀번호 재설정 요청이 접수되었습니다.<br>아래 버튼을 클릭하여 새 비밀번호를 설정해 주세요.</p>
+            <p><strong>링크는 30분간 유효합니다.</strong></p>
+            <a href="${resetLink}" style="display:inline-block;margin:20px 0;padding:14px 28px;background:#1a1a1a;color:#fff;text-decoration:none;font-weight:600;">
+              비밀번호 재설정
+            </a>
+            <p style="color:#999;font-size:13px;">본인이 요청하지 않으셨다면 이 이메일을 무시해 주세요.</p>
+          </div>
+        `
+      });
+      console.log('✅ 이메일 전송 성공');
+    } catch (mailError) {
+      console.error('⚠️ 이메일 전송 실패 (링크는 정상 생성됨):', mailError.message);
+      console.log('🔗 비밀번호 재설정 링크:', resetLink);
+    }
+    res.json({ message: '입력하신 이메일로 재설정 링크를 전송했습니다.' });
+
+  } catch (error) {
+    console.error('❌ 비밀번호 찾기 에러 발생 위치:', error.message);
+    res.status(500).json({ message: '이메일 전송에 실패했습니다.' });
+  }
+};
+
+// 비밀번호 재설정
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({ message: '토큰과 새 비밀번호를 입력해주세요.' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: '비밀번호는 6자 이상이어야 합니다.' });
+    }
+
+    // 유효한 토큰 확인
+    const [tokens] = await db.query(
+      `SELECT * FROM password_reset_tokens
+       WHERE token = ? AND used = 0 AND expires_at > NOW()`,
+      [token]
+    );
+
+    if (tokens.length === 0) {
+      return res.status(400).json({ message: '유효하지 않거나 만료된 링크입니다.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await db.query(
+      'UPDATE users SET password = ? WHERE user_id = ?',
+      [hashedPassword, tokens[0].user_id]
+    );
+
+    // 토큰 사용 처리
+    await db.query(
+      'UPDATE password_reset_tokens SET used = 1 WHERE token = ?',
+      [token]
+    );
+
+    res.json({ message: '비밀번호가 변경되었습니다. 새 비밀번호로 로그인해 주세요.' });
+
+  } catch (error) {
+    console.error('비밀번호 재설정 에러:', error);
     res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
 };

@@ -28,7 +28,7 @@ function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://192.168.0.219:5000/api/auth/login', formData);
+      const response = await axios.post('http://192.168.0.225:5000/api/auth/login', formData);
       
       // 토큰 저장
       localStorage.setItem('token', response.data.token);
@@ -91,8 +91,11 @@ function LoginPage() {
 
         <div className="auth-links">
           <p>
-            아직 회원이 아니신가요? 
+            아직 회원이 아니신가요?
             <Link to="/signup"> 회원가입</Link>
+          </p>
+          <p>
+            <Link to="/forgot-password">비밀번호를 잊으셨나요?</Link>
           </p>
           <p>
             <Link to="/admin/login">관리자 로그인</Link>
